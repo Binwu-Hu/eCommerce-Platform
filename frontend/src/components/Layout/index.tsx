@@ -1,19 +1,23 @@
+import Footer from './Footer';
+import Header from './Header';
 import { Layout } from 'antd';
-// import Navbar from 'components/Navbar';
 import { Outlet } from 'react-router-dom';
+import React from 'react';
 
-export default function MainLayout() {
+const { Content } = Layout;
+
+const App: React.FC = () => {
   return (
+    <Layout className='min-h-screen'>
+      <Header />
 
-      <Layout>
-        <Layout.Header >
-          {/* <Navbar /> */}
-        </Layout.Header>
-        <Layout.Content >
-          <Outlet />
-        </Layout.Content>
-        <Layout.Footer >this is footer</Layout.Footer>
-      </Layout>
+      <Content className='flex-grow flex justify-center items-center bg-gray-100'>
+        <Outlet />
+      </Content>
 
+      <Footer />
+    </Layout>
   );
-}
+};
+
+export default App;
