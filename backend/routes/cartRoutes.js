@@ -1,17 +1,18 @@
-const express = require('express');
-const {
+import {
   addItemToCart,
-  removeItemFromCart,
   applyDiscountCode,
   getCart,
-  updateCartItemQuantity,
+  removeItemFromCart,
   syncCart,
-} = require('../controllers/cartController');
-const { protect } = require('../middleware/authMiddleware');
+  updateCartItemQuantity,
+} from '../controllers/cartController.js';
+
+import express from 'express';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Aadd an item to the cart
+// Add an item to the cart
 router.post('/add', addItemToCart);
 
 // Remove an item from the cart
@@ -23,10 +24,10 @@ router.post('/discount', applyDiscountCode);
 // Get cart details
 router.get('/', getCart);
 
-//Update the quantity of a product in the cart
+// Update the quantity of a product in the cart
 router.put('/update', updateCartItemQuantity);
 
-// Route to sync guest cart with the backend after login (logged-in users)
+// Sync guest cart with the backend after login (logged-in users)
 router.post('/sync', protect, syncCart);
 
-module.exports = router;
+export default router;

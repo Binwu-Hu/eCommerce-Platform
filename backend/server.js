@@ -1,14 +1,13 @@
-import express from 'express'
-
+import cartRoutes from './routes/cartRoutes.js';
+import connectDB from './db/db.js'
+import cors from 'cors'
 import dotenv from 'dotenv'
+import express from 'express'
+import productRoutes from './routes/productRoutes.js'
+import userRoutes from './routes/userRoutes.js'
+
 dotenv.config()
 
-import connectDB from './db/db.js'
-
-import userRoutes from './routes/userRoutes.js'
-import productRoutes from './routes/productRoutes.js'
-
-import cors from 'cors'
 
 const app = express()
 const port = 3000
@@ -21,6 +20,7 @@ connectDB()
 
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/carts', cartRoutes);
 
 // Start the Server
 app.listen(port, () => {
