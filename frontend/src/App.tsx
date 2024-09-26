@@ -1,14 +1,12 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import Layout from './components/Layout';
-
 // import Footer from './components/Layout/Footer';
 // import Header from './components/Layout/Header';
 // import Home from './pages/Home';
 // import ProductDetail from './pages/ProductDetail';
 // import ProductForm from './pages/ProductForm';
 // import React from 'react';
-// import SignIn from './pages/SignIn';
 import Login from './pages/auth/login';
 import Signup from './pages/auth/signup';
 
@@ -16,17 +14,23 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        {/* <Route path='/' element={<Home />} />
-        <Route path='/product/:id' element={<ProductDetail />} />
-        <Route path='/add-product' element={<ProductForm />} />
-        <Route path='/edit-product/:id' element={<ProductForm />} />
-        <Route path='/signin' element={<SignIn />} /> */}
+        <Route path='/' element={<Layout />}>
+          <Route path='/login' element={<Login />} />
+          <Route path='/signup' element={<Signup />} />
+          {/* <Route path='/' element={<Home />} />
+            <Route path='/product/:id' element={<ProductDetail />} />
+            <Route path='/add-product' element={<ProductForm />} />
+            <Route path='/edit-product/:id' element={<ProductForm />} />
+         */}
+        </Route>
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
+
+
+
+
