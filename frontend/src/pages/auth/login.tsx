@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../../features/user/userSlice';
 import AuthForm from '../../components/auth/form';
 
 const Login = () => {
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state: { user: { loading: boolean; error: string } }) => state.user);
+  const navigate = useNavigate();
+  const { loading, error, isAuthenticated } = useSelector((state) => state.user);
 
   const handleSubmit = (values: { email: string; password: string }) => {
-    console.log('Submitting form:', values);
     dispatch(loginUser(values));
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div>
@@ -24,6 +31,9 @@ const Login = () => {
       />
       {loading && <p>Loading...</p>}
       {error && <p>{error}</p>}
+      <p>
+        No account? <Link to="/signup">Create one</Link>
+      </p>
     </div>
   );
 };
