@@ -9,12 +9,16 @@ import Layout from './components/Layout';
 // import ProductForm from './pages/ProductForm';
 // import React from 'react';
 // import SignIn from './pages/SignIn';
+import Login from './pages/auth/login';
+import Signup from './pages/auth/signup';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Layout />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         {/* <Route path='/' element={<Home />} />
         <Route path='/product/:id' element={<ProductDetail />} />
         <Route path='/add-product' element={<ProductForm />} />
