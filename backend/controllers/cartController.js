@@ -1,21 +1,21 @@
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
+import Cart from '../models/cartModel.js';
+import Product from '../models/productModel.js';
 
 const isUserLoggedIn = (req) => {
-  return !!req.user;
+  return !!req.user; // Check if the user is logged in
 };
 
 // Add an item to the cart
-const addItemToCart = async (req, res) => {
+export const addItemToCart = async (req, res) => {
   const { productId, quantity } = req.body;
 
   try {
-    // unloggedin users
+    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res.status(200).json({ message: 'Store this in localStorage' });
     }
 
-    // logged in users
+    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
 
@@ -49,7 +49,6 @@ const addItemToCart = async (req, res) => {
         product: product._id,
         quantity: quantity,
       };
-
       cart.items.push(newCartItem);
     }
 
@@ -61,16 +60,16 @@ const addItemToCart = async (req, res) => {
 };
 
 // Remove an item from the cart
-const removeItemFromCart = async (req, res) => {
+export const removeItemFromCart = async (req, res) => {
   const { productId } = req.params;
 
   try {
-    // unloggedin users
+    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res.status(200).json({ message: 'Remove this from localStorage' });
     }
 
-    // loggedin users
+    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
 
@@ -90,16 +89,16 @@ const removeItemFromCart = async (req, res) => {
 };
 
 // Apply a discount code
-const applyDiscountCode = async (req, res) => {
+export const applyDiscountCode = async (req, res) => {
   const { discountCode } = req.body;
 
   try {
-    // unloggedin users
+    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res.status(200).json({ message: 'Apply this in localStorage' });
     }
 
-    // loggedin users
+    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
 
@@ -121,14 +120,14 @@ const applyDiscountCode = async (req, res) => {
 };
 
 // Get cart details
-const getCart = async (req, res) => {
+export const getCart = async (req, res) => {
   try {
-    // unloggedin users
+    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res.status(200).json({ message: 'Get cart from localStorage' });
     }
 
-    // loggedin users
+    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId }).populate(
       'items.product',
@@ -157,18 +156,18 @@ const getCart = async (req, res) => {
 };
 
 // Update item quantity in the cart
-const updateCartItemQuantity = async (req, res) => {
+export const updateCartItemQuantity = async (req, res) => {
   const { productId, quantity } = req.body;
 
-  // unloggedin users
   try {
+    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res
         .status(200)
         .json({ message: 'Update quantity in localStorage' });
     }
 
-    // loggedin users
+    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
 
@@ -204,17 +203,17 @@ const updateCartItemQuantity = async (req, res) => {
   }
 };
 
-const syncCart = async (req, res) => {
-  // Items from the guest cart (localStorage)
-  const { items } = req.body;
+// Sync guest cart from localStorage after user logs in
+export const syncCart = async (req, res) => {
+  const { items } = req.body; // Items from the guest cart (localStorage)
 
   try {
-    // unloggedin users
+    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res.status(400).json({ message: 'User not logged in' });
     }
 
-    // loggedin users
+    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
 
@@ -261,18 +260,10 @@ const syncCart = async (req, res) => {
         });
       }
     }
+
     await cart.save();
     res.status(200).json(cart);
   } catch (error) {
     res.status(500).json({ message: 'Error syncing cart', error });
   }
-};
-
-module.exports = {
-  addItemToCart,
-  removeItemFromCart,
-  applyDiscountCode,
-  getCart,
-  updateCartItemQuantity,
-  syncCart,
 };
