@@ -1,10 +1,10 @@
-import { AppDispatch, RootState } from '../../app/store';
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   removeItemFromCart,
   updateCartItemQuantity,
 } from '../../features/cart/cartSlice';
 
+import { AppDispatch } from '../../app/store';
 import { Button } from 'antd';
 import React from 'react';
 import { useDispatch } from 'react-redux';
