@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { RootState } from '../../app/store';
-
+import { loginUserApi, signupUserApi } from '../../api/user';
 
 export interface User {
   id: string;
@@ -28,18 +27,10 @@ export const loginUser = createAsyncThunk(
   'user/login',
   async (data: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const json = await response.json();
-      if (!response.ok) {
-        return rejectWithValue(json.message);
-      }
-      return json;
-    } catch (error) {
-      return rejectWithValue('Login failed');
+      const response = await loginUserApi(data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -48,18 +39,10 @@ export const signupUser = createAsyncThunk(
   'user/signup',
   async (data: { name: string; email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch('/api/users/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const json = await response.json();
-      if (!response.ok) {
-        return rejectWithValue(json.message);
-      }
-      return json;
-    } catch (error) {
-      return rejectWithValue('Signup failed');
+      const response = await signupUserApi(data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -75,7 +58,6 @@ const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // 3 statuses for loginUser and signupUser
     builder.addCase(loginUser.pending, (state) => {
       state.loading = true;
       state.error = null;
