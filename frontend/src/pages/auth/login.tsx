@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginUser } from '../../features/user/userSlice';
+import { loginUser, clearError } from '../../features/user/userSlice';
 import { Form, Input, Button, Card, Typography } from 'antd';
 
 const { Title, Text } = Typography;
@@ -20,6 +20,11 @@ const Login = () => {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
+
+  // clear error message when entering the page
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
