@@ -5,6 +5,7 @@ const request = async (url: string, method: string, data?: any) => {
     method,
     headers: {
       'Content-Type': 'application/json',
+      'FRONTEND_URL': window.location.origin,
     },
   };
 
