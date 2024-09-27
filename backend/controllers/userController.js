@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
 import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
+import nodemailer from 'nodemailer'; 
+import crypto from 'crypto';
+import sgMail from '@sendgrid/mail';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Generate JWT
 const generateToken = (id, isAdmin) => {
@@ -8,6 +13,9 @@ const generateToken = (id, isAdmin) => {
     expiresIn: '30d',
   });
 };
+
+console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // User login
 const authUser = asyncHandler(async (req, res) => {
@@ -106,4 +114,67 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-export { authUser, registerUser, getUserProfile, logoutUser };
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  // Check if user exists with that email
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetUrl = `${req.protocol}://${req.get('host')}/api/users/reset-password/${resetToken}`;
+
+  const message = `
+    <h1>Password Reset Request</h1>
+    <p>You requested a password reset. Please click on the link below to reset your password:</p>
+    <a href="${resetUrl}">${resetUrl}</a>
+    <p>If you did not request this, please ignore this email.</p>
+  `;
+
+  try {
+    console.log('Sending email to:', user.email); 
+    await sgMail.send({
+      to: user.email,
+      from: 'ecommercemanagementchuwa@gmail.com',
+      subject: 'Password Reset Request',
+      html: message,
+    });
+
+    res.status(200).json({ message: 'Email sent successfully', resetToken });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({
+      message: 'Email could not be sent',
+      error: error.message,
+    });
+  }
+});
+
+// Reset Password
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params; // Token from URL
+  const { password, email } = req.body; // Password and email from request
+
+  // Decode base64 token
+  const decodedToken = Buffer.from(token, 'base64').toString('hex');
+
+  // Find user by email
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(400).json({ message: 'Invalid or expired token' });
+    return;
+  }
+
+  // Set new password
+  user.password = password;
+  await user.save();
+
+  res.status(200).json({ message: 'Password reset successful' });
+});
+
+export { authUser, registerUser, getUserProfile, logoutUser, forgotPassword, resetPassword };
