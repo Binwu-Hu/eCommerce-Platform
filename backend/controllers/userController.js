@@ -116,6 +116,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
 
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
+  const frontendUrl = req.headers['frontend_url']
 
   // Check if user exists with that email
   const user = await User.findOne({ email });
@@ -125,8 +126,13 @@ const forgotPassword = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  const resetUrl = `${req.protocol}://${req.get('host')}/api/users/reset-password/${resetToken}`;
+  // Add a timestamp or random number to make the token unique each time
+  const timestamp = Date.now(); // You can also use randomBytes for randomness
+  const dataToEncode = `${email}:${timestamp}`; // Combine email and timestamp
+
+  // Encode the email and timestamp into the token
+  const resetToken = Buffer.from(dataToEncode).toString('hex');
+  const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
   const message = `
     <h1>Password Reset Request</h1>
@@ -157,13 +163,20 @@ const forgotPassword = asyncHandler(async (req, res) => {
 // Reset Password
 const resetPassword = asyncHandler(async (req, res) => {
   const { token } = req.params; // Token from URL
+  // console.log('Token received by backend:', token); 
   const { password, email } = req.body; // Password and email from request
+  // console.log('Password received by backend:', password); 
 
-  // Decode base64 token
-  const decodedToken = Buffer.from(token, 'base64').toString('hex');
 
-  // Find user by email
-  const user = await User.findOne({ email });
+  // Decode token using hex
+  const decodedData = Buffer.from(token, 'hex').toString('utf8'); // Ensure this matches how the token was encoded
+  const [decodedEmail, timestamp] = decodedData.split(':'); // Split the email and timestamp
+
+  // console.log('Decoded email:', decodedEmail);
+  // console.log('Timestamp:', timestamp);
+
+// Find user by email
+  const user = await User.findOne({ email: decodedEmail });
 
   if (!user) {
     res.status(400).json({ message: 'Invalid or expired token' });

@@ -9,6 +9,8 @@ import Layout from './components/Layout';
 // import React from 'react';
 import Login from './pages/auth/login';
 import Signup from './pages/auth/signup';
+import ForgotPassword from './pages/auth/forgotPassword';
+import ResetPassword from './pages/auth/resetPassword';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path='/' element={<Layout />}>
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           {/* <Route path='/' element={<Home />} />
             <Route path='/product/:id' element={<ProductDetail />} />
             <Route path='/add-product' element={<ProductForm />} />

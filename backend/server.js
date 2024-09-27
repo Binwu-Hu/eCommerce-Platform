@@ -14,9 +14,21 @@ const port = 3000
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-app.use(cors())
 
 connectDB()
+const corsOptionsDelegate = (req, callback) => {
+  let corsOptions;
+  const frontendUrl = req.headers['frontend_url']; // Retrieve the frontend URL from the headers
+
+  if (frontendUrl) {
+    corsOptions = { origin: frontendUrl }; // Allow the request origin
+  } else {
+    corsOptions = { origin: false }; // Disable CORS if no valid origin is found
+  }
+
+  callback(null, corsOptions); // callback expects two parameters: error and options
+};
+app.use(cors(corsOptionsDelegate)); 
 
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
