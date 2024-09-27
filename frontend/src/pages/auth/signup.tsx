@@ -31,15 +31,36 @@ const Signup = () => {
       <Card style={{ width: 400, textAlign: 'center' }}>
         <Title level={3}>Sign up an account</Title>
         <Form onFinish={handleSubmit} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input your name!' }]}>
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: 'Please input your name!' }]}
+          >
             <Input placeholder="Enter your name" />
           </Form.Item>
-          <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please input your email!' }]}>
+
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[
+              { required: true, message: 'Please input your email!' },
+              { type: 'email', message: 'Please enter a valid email including @ symbol!' }
+            ]}
+          >
             <Input placeholder="Enter your email" />
           </Form.Item>
-          <Form.Item name="password" label="Password" rules={[{ required: true, message: 'Please input your password!' }]}>
+
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              { required: true, message: 'Please input your password!' },
+              { min: 4, message: 'Password must be at least 4 characters long!' }
+            ]}
+          >
             <Input.Password placeholder="Enter your password" />
           </Form.Item>
+
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>
               Create account
