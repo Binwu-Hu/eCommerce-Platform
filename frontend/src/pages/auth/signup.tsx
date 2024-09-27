@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { signupUser } from '../../features/user/userSlice';
-import AuthForm from '../../components/auth/form';
+import { signupUser, clearError } from '../../features/user/userSlice';
+import { Form, Input, Button, Card, Typography } from 'antd';
+
+const { Title, Text } = Typography;
 
 const Signup = () => {
   const dispatch = useDispatch();
@@ -19,22 +21,36 @@ const Signup = () => {
     }
   }, [isAuthenticated, navigate]);
 
+  // clear error message when entering the page
+  useEffect(() => {
+    dispatch(clearError());
+  }, [dispatch]);
+
   return (
-    <div>
-      <h2>Sign Up</h2>
-      <AuthForm
-        fields={[
-          { name: 'name', label: 'Name', inputType: 'text' },
-          { name: 'email', label: 'Email', inputType: 'email' },
-          { name: 'password', label: 'Password', inputType: 'password' },
-        ]}
-        onSubmit={handleSubmit}
-      />
-      {loading && <p>Loading...</p>}
-      {error && <p>{error}</p>}
-      <p>
-        Already have an account? <Link to="/login">Login</Link>
-      </p>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Card style={{ width: 400, textAlign: 'center' }}>
+        <Title level={3}>Sign up an account</Title>
+        <Form onFinish={handleSubmit} layout="vertical">
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input your name!' }]}>
+            <Input placeholder="Enter your name" />
+          </Form.Item>
+          <Form.Item name="email" label="Email" rules={[{ required: true, message: 'Please input your email!' }]}>
+            <Input placeholder="Enter your email" />
+          </Form.Item>
+          <Form.Item name="password" label="Password" rules={[{ required: true, message: 'Please input your password!' }]}>
+            <Input.Password placeholder="Enter your password" />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" loading={loading} block>
+              Create account
+            </Button>
+          </Form.Item>
+        </Form>
+        {error && <Text type="danger">{error}</Text>}
+        <Text>
+          Already have an account? <Link to="/login">Sign in</Link>
+        </Text>
+      </Card>
     </div>
   );
 };
