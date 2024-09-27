@@ -58,16 +58,34 @@ const MergedHeader = () => {
             className="bg-black text-white flex space-x-6"
           >
             {isAuthenticated ? (
-              <Menu.Item key="1">
-                <Dropdown overlay={userMenu} trigger={['click']}>
-                  <Button>{user?.name}</Button>
-                </Dropdown>
-              </Menu.Item>
-            ) : (
-              <Menu.Item key="1">
+              <Menu.Item
+                key="1"
+                onClick={handleLogout}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'white',
+                  transition: 'color 0.3s',
+                }}
+                className="hover:text-yellow-500"
+              >
                 <div className="flex items-center space-x-2">
                   <UserOutlined style={{ fontSize: '20px' }} />
-                  <Link to="/login" style={{ color: 'white' }}>
+                  <span>Sign Out</span>
+                </div>
+              </Menu.Item>
+            ) : (
+              <Menu.Item
+                key="1"
+                style={{ backgroundColor: 'transparent', color: 'white' }}
+                className="hover:text-yellow-500"
+              >
+                <div className="flex items-center space-x-2">
+                  <UserOutlined style={{ fontSize: '20px' }} />
+                  <Link
+                    to="/login"
+                    style={{ color: 'inherit', textDecoration: 'none' }}
+                    className="hover:text-yellow-500"
+                  >
                     Sign In
                   </Link>
                 </div>
