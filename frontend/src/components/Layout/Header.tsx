@@ -22,17 +22,6 @@ const MergedHeader = () => {
     navigate('/');
   };
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="1">
-        <Link to="/profile">Profile</Link>
-      </Menu.Item>
-      <Menu.Item key="2" onClick={handleLogout}>
-        Logout
-      </Menu.Item>
-    </Menu>
-  );
-
   return (
     <Header className="bg-black text-white px-4">
       <div className="flex justify-between items-center w-full">
