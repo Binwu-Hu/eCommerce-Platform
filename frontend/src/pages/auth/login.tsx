@@ -62,6 +62,8 @@ const Login = () => {
         {error && <Text type="danger">{error}</Text>}
         <Text>
           Don’t have an account? <Link to="/signup">Sign up</Link>
+          <br />
+          <Link to="/forgot-password">Forgot password?</Link>
         </Text>
       </Card>
     </div>

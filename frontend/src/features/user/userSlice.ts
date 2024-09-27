@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginUserApi, signupUserApi } from '../../api/user';
+import { loginUserApi, signupUserApi, sendResetPasswordLinkApi, resetPasswordApi } from '../../api/user';
 
 export interface User {
   id: string;
@@ -47,6 +47,33 @@ export const signupUser = createAsyncThunk(
   }
 );
 
+export const sendResetPasswordLink = createAsyncThunk(
+  'user/forgotPassword',
+  async (email: string, { rejectWithValue }) => {
+    try {
+      const response = await sendResetPasswordLinkApi(email);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  'user/resetPassword',
+  async (data: { token: string, password: string }, { rejectWithValue }) => {
+    try {
+      console.log('Data being sent to API:', data); // Debug log
+      const response = await resetPasswordApi(data.token, { password: data.password });
+      console.log('Response from API:', response); // Debug log
+      return response;
+    } catch (error: any) {
+      console.error('Error from API:', error.message); // Debug log
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -87,6 +114,33 @@ const userSlice = createSlice({
       localStorage.setItem('token', action.payload.token);
     });
     builder.addCase(signupUser.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(sendResetPasswordLink.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(sendResetPasswordLink.fulfilled, (state) => {
+      state.loading = false;
+    });
+    builder.addCase(sendResetPasswordLink.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(resetPassword.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(resetPassword.fulfilled, (state) => {
+      state.loading = false;
+      state.user = null;
+      state.isAuthenticated = false;
+      localStorage.removeItem('token');
+    });
+    builder.addCase(resetPassword.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });
