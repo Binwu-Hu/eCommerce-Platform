@@ -20,7 +20,10 @@ const ForgotPassword = () => {
       {!emailSent ? (
         <Card style={{ width: 400, textAlign: 'center' }}>
           <Title level={3}>Update your password</Title>
-          <Form onFinish={handleSubmit} layout="vertical">
+          <Text style={{ fontSize: '12px', color: '#6B7280' }}>
+            Enter your email link, we will send you the recovery link
+          </Text>
+          <Form onFinish={handleSubmit} layout="vertical" style={{ marginTop: '1rem' }}>
             <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}>
               <Input placeholder="Enter your email" />
             </Form.Item>
