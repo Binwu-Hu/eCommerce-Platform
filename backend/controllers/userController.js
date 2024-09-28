@@ -96,31 +96,6 @@ const logoutUser = asyncHandler(async (req, res) => {
     res.status(200).json({ message: 'User logged out successfully' });
   });
 
-// Get user profile
-const getUserProfile = asyncHandler(async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (user) {
-      res.status(200).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-      });
-    } else {
-      res.status(404).json({
-        message: 'User not found',
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      message: 'Server error fetching user profile',
-      error: error.message,
-    });
-  }
-});
-
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const frontendUrl = req.headers['frontend_url']
@@ -197,4 +172,4 @@ const resetPassword = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Password reset successful' });
 });
 
-export { authUser, registerUser, getUserProfile, logoutUser, forgotPassword, resetPassword };
+export { authUser, registerUser, logoutUser, forgotPassword, resetPassword };
