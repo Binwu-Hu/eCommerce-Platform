@@ -40,6 +40,8 @@ interface Product {
   rating: number;
   numReviews: number;
   countInStock: number;
+  brand:string;
+  category:string;
 }
 
 interface Review {
