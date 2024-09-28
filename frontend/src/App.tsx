@@ -12,6 +12,8 @@ import Signup from './pages/auth/signup'
 import ForgotPassword from './pages/auth/forgotPassword'
 import ResetPassword from './pages/auth/resetPassword'
 
+import ProductEditScreen from './pages/ProductEditScreen'
+
 import Home from './pages/Home'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -28,6 +30,10 @@ function App() {
           <Route path='/search/:keyword' element={<Home />} />
           <Route path='/page/:pageNumber' element={<Home />} />
           <Route path='/search/:keyword/page/:pageNumber' element={<Home />} />
+          <Route
+            path='/admin/product/:id/edit'
+            element={<ProductEditScreen />}
+          />
           {/* <Route path='/' element={<Home />} />
             <Route path='/product/:id' element={<ProductDetail />} />
             <Route path='/add-product' element={<ProductForm />} />
