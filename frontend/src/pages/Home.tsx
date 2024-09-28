@@ -7,16 +7,23 @@ import { useDispatch, useSelector } from 'react-redux'
 import { createProduct, fetchProducts } from '../features/product/productSlice'
 import { RootState, AppDispatch } from '../app/store'
 
+import Paginate from '../components/Layout/Paginate'
+import { useParams, useNavigate } from 'react-router-dom'
+
 const HomeScreen: React.FC = () => {
+  const { pageNumber = '1', keyword = '' } = useParams<{
+    pageNumber: string
+    keyword: string
+  }>()
   const dispatch: AppDispatch = useDispatch()
 
-  const { products, loading, error } = useSelector(
+  const { products, page, pages, loading, error } = useSelector(
     (state: RootState) => state.product
   )
 
   useEffect(() => {
-    dispatch(fetchProducts({ keyword: '', pageNumber: '' }))
-  }, [dispatch])
+    dispatch(fetchProducts({ keyword, pageNumber }))
+  }, [dispatch, keyword, pageNumber])
 
   const [sortOrder, setSortOrder] = useState<
     'default' | 'lowToHigh' | 'highToLow' | 'lastAdded'
@@ -100,6 +107,9 @@ const HomeScreen: React.FC = () => {
           </Col>
         ))}
       </Row>
+
+      <br />
+      <Paginate pages={pages} page={page} keyword={keyword ? keyword : ''} />
     </>
   )
 }
