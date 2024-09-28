@@ -36,20 +36,12 @@ interface Product {
   price: number;
   description: string;
   image: string;
-  reviews: Review[];
-  rating: number;
-  numReviews: number;
-  countInStock: number;
+  stock: number;
   brand:string;
   category:string;
 }
 
-interface Review {
-  _id: string;
-  name: string;
-  rating: number;
-  comment: string;
-}
+
 
 interface ProductState {
   products: Product[];

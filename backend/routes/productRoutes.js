@@ -12,12 +12,13 @@ import checkObjectId from '../middleware/checkObjectId.js'
 
 const router = express.Router()
 
-router.route('/').get(getProducts).post(protect, admin, createProduct)
+//need to add protect & admin
+router.route('/').get(getProducts).post(createProduct)
 
 router
   .route('/:id')
   .get(checkObjectId, getProductById)
-  .put(protect, admin, checkObjectId, updateProduct)
+  .put(checkObjectId, updateProduct)
   .delete(protect, admin, checkObjectId, deleteProduct)
 
 export default router

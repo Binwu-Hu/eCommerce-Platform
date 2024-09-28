@@ -10,7 +10,7 @@ import {
 } from '../features/product/productSlice'
 
 const ProductEditScreen = () => {
-  const dispatch: AppDispatch = useDispatch() 
+  const dispatch: AppDispatch = useDispatch()
   const navigate = useNavigate()
   const { id: productId } = useParams<{ id: string }>()
 
@@ -20,7 +20,7 @@ const ProductEditScreen = () => {
   const [image, setImage] = useState<string>('')
   const [brand, setBrand] = useState<string>('')
   const [category, setCategory] = useState<string>('')
-  const [countInStock, setCountInStock] = useState<number>(0)
+  const [stock, setStock] = useState<number>(0)
   const [description, setDescription] = useState<string>('')
 
   // Fetch product details from Redux state
@@ -41,7 +41,7 @@ const ProductEditScreen = () => {
       setImage(productDetails.image)
       setBrand(productDetails.brand)
       setCategory(productDetails.category)
-      setCountInStock(productDetails.countInStock)
+      setStock(productDetails.stock)
       setDescription(productDetails.description)
     }
   }, [productDetails])
@@ -49,30 +49,27 @@ const ProductEditScreen = () => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-   
     if (!productId) {
       console.error('Product ID is undefined')
       return
     }
 
     try {
-     
       await dispatch(
         updateProduct({
-          productId, 
+          productId,
           productData: {
             name,
             price,
             image,
             brand,
             category,
-            countInStock,
+            stock,
             description,
           },
         })
       ).unwrap()
 
-      // 成功后导航到主页面
       navigate('/')
     } catch (err: any) {
       console.error('Failed to update product:', err)
@@ -86,7 +83,7 @@ const ProductEditScreen = () => {
       formData.append('image', file)
 
       try {
-        const response = await dispatch(uploadProductImage(formData)).unwrap() 
+        const response = await dispatch(uploadProductImage(formData)).unwrap()
         setImage(response.image)
       } catch (err: any) {
         console.error('Image upload failed:', err)
@@ -149,12 +146,12 @@ const ProductEditScreen = () => {
             />
           </Form.Group>
 
-          <Form.Group controlId='countInStock'>
+          <Form.Group controlId='stock'>
             <Form.Label>Count In Stock</Form.Label>
             <Form.Control
               type='number'
-              value={countInStock}
-              onChange={(e) => setCountInStock(Number(e.target.value))}
+              value={stock}
+              onChange={(e) => setStock(Number(e.target.value))}
             />
           </Form.Group>
 
