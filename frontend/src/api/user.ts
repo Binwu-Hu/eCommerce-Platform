@@ -8,6 +8,7 @@ export const signupUserApi = (data: {
   name: string;
   email: string;
   password: string;
+  isAdmin: boolean;
 }) => {
   return post('/users/register', data);
 };

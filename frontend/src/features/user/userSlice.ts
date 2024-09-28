@@ -57,7 +57,7 @@ export const loginUser = createAsyncThunk(
 export const signupUser = createAsyncThunk(
   'user/signup',
   async (
-    data: { name: string; email: string; password: string },
+    data: { name: string; email: string; password: string; isAdmin: boolean },
     { dispatch, rejectWithValue }
   ) => {
     try {
@@ -107,7 +107,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      localStorage.removeItem('token');
+    localStorage.removeItem('token');
       localStorage.removeItem('user');
       state.user = null;
       state.isAuthenticated = false;
