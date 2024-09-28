@@ -33,6 +33,7 @@ const ForgotPassword = () => {
               </Button>
             </Form.Item>
           </Form>
+          <Link to="/login" style={{ display: 'block', marginTop: '1rem' }}>Back to Login</Link>
         </Card>
       ) : (
         <Card style={{ width: 400, textAlign: 'center' }}>
