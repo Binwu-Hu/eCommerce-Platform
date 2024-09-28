@@ -1,10 +1,11 @@
 import React from 'react';
-import { Form, Input, Button, Card, Typography } from 'antd';
 import { useDispatch } from 'react-redux';
 import { resetPassword } from '../../features/user/userSlice'; 
 import { useNavigate, useParams } from 'react-router-dom';
+import { Card, Typography } from 'antd';
+import AuthForm from '../../components/auth/Form';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const ResetPassword = () => {
   const dispatch = useDispatch();
@@ -13,7 +14,6 @@ const ResetPassword = () => {
 
   const handleSubmit = (values: { password: string; confirmPassword: string }) => {
     if (values.password === values.confirmPassword) {
-        // console.log(token);
       dispatch(resetPassword({ token, password: values.password }));
       navigate('/login');
     } else {
@@ -25,19 +25,7 @@ const ResetPassword = () => {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <Card style={{ width: 400, textAlign: 'center' }}>
         <Title level={3}>Reset your password</Title>
-        <Form onFinish={handleSubmit} layout="vertical">
-          <Form.Item name="password" label="New Password" rules={[{ required: true, min: 4, message: 'Password must be at least 4 characters' }]}>
-            <Input.Password placeholder="Enter your new password" />
-          </Form.Item>
-          <Form.Item name="confirmPassword" label="Confirm Password" rules={[{ required: true, message: 'Please confirm your password' }]}>
-            <Input.Password placeholder="Confirm your password" />
-          </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block>
-              Reset password
-            </Button>
-          </Form.Item>
-        </Form>
+        <AuthForm formType="resetPassword" onSubmit={handleSubmit} />
       </Card>
     </div>
   );

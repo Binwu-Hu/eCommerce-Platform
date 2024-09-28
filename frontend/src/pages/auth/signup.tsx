@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { signupUser, clearError } from '../../features/user/userSlice';
@@ -10,11 +10,15 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated } = useSelector((state) => state.user);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const handleSubmit = (values: { name: string; email: string; password: string; role: string }) => {
-    const isAdmin = values.role === 'Vendor';
+  const handleSubmit = (values: { name: string; email: string; password: string }) => {
     const signupData = { ...values, isAdmin };
     dispatch(signupUser(signupData));
+  };
+
+  const handleRoleChange = (e: any) => {
+    setIsAdmin(e.target.value === 'Vendor');
   };
 
   useEffect(() => {
@@ -68,7 +72,7 @@ const Signup = () => {
             label="Role"
             rules={[{ required: true, message: 'Please select a role!' }]}
           >
-            <Radio.Group>
+            <Radio.Group onChange={handleRoleChange}>
               <Radio value="Customer">Customer</Radio>
               <Radio value="Vendor">Vendor</Radio>
             </Radio.Group>
