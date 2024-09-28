@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography } from 'antd';
 import { useDispatch } from 'react-redux';
 import { sendResetPasswordLink } from '../../features/user/userSlice';
 import { Link } from 'react-router-dom';
+import { Card, Typography } from 'antd';
+import AuthForm from '../../components/auth/Form';
 
 const { Title, Text } = Typography;
 
@@ -23,16 +24,7 @@ const ForgotPassword = () => {
           <Text style={{ fontSize: '12px', color: '#6B7280' }}>
             Enter your email link, we will send you the recovery link
           </Text>
-          <Form onFinish={handleSubmit} layout="vertical" style={{ marginTop: '1rem' }}>
-            <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}>
-              <Input placeholder="Enter your email" />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit" block>
-                Update password
-              </Button>
-            </Form.Item>
-          </Form>
+          <AuthForm formType="forgotPassword" onSubmit={handleSubmit} />
           <Link to="/login" style={{ display: 'block', marginTop: '1rem' }}>Back to Login</Link>
         </Card>
       ) : (
