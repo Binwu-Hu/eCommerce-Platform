@@ -1,6 +1,6 @@
 import { post } from './base';
 
-export const loginUserApi = (data: { email: string; password: string }) => {
+export const loginUserApi = (data: { email: string; password: string; isAdmin: boolean }) => {
   return post('/users/login', data);
 };
 

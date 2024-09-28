@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser, clearError } from '../../features/user/userSlice';
-import { Form, Input, Button, Card, Typography } from 'antd';
+import { Form, Input, Button, Card, Typography, Checkbox } from 'antd';
 
 const { Title, Text } = Typography;
 
@@ -11,8 +11,14 @@ const Login = () => {
   const navigate = useNavigate();
   const { loading, error, isAuthenticated } = useSelector((state) => state.user);
 
+  const [isVendor, setIsVendor] = useState(false);
+
   const handleSubmit = (values: { email: string; password: string }) => {
-    dispatch(loginUser(values));
+    const loginData = {
+      ...values,
+      isAdmin: isVendor,
+    };
+    dispatch(loginUser(loginData));
   };
 
   useEffect(() => {
@@ -51,6 +57,12 @@ const Login = () => {
             ]}
           >
             <Input.Password placeholder="Enter your password" />
+          </Form.Item>
+
+          <Form.Item>
+            <Checkbox checked={isVendor} onChange={(e) => setIsVendor(e.target.checked)}>
+              Want to login as a vendor?
+            </Checkbox>
           </Form.Item>
 
           <Form.Item>

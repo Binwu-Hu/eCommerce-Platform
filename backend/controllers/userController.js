@@ -19,12 +19,18 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // User login
 const authUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, isAdmin } = req.body;
 
   try {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
+      if (user.isAdmin !== isAdmin) {
+        return res.status(401).json({
+          message: 'Unauthorized access - Incorrect role',
+        });
+      }
+
       res.status(200).json({
         _id: user._id,
         name: user.name,

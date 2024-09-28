@@ -34,7 +34,7 @@ const initialState: UserState = {
 export const loginUser = createAsyncThunk(
   'user/login',
   async (
-    data: { email: string; password: string },
+    data: { email: string; password: string; isAdmin: boolean },
     { dispatch, rejectWithValue }
   ) => {
     try {
