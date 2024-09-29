@@ -25,6 +25,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           src={product.image}
           className='h-49 object-cover'
           onClick={handleCardClick}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/sample.jpg';
+          }}
         />
       }
     >
