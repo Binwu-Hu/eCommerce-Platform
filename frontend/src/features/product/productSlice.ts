@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-interface Product {
+export interface Product {
   _id: string;
   name: string;
   description: string;
