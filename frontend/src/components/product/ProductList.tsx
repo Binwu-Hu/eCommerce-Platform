@@ -6,11 +6,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import ProductCard from './ProductCard';
 import SortingOptions from './SortingOptions';
 import { fetchProducts } from '../../features/product/productSlice';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const { keyword } = useParams();
+
   const { products, loading, error } = useSelector(
     (state: RootState) => state.products
   );
@@ -22,8 +24,8 @@ const ProductList: React.FC = () => {
   const [sortOption, setSortOption] = useState('last_added');
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    dispatch(fetchProducts(keyword));
+  }, [dispatch, keyword]);
 
   const sortProducts = (option: string) => {
     setSortOption(option);

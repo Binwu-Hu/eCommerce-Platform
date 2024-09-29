@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
+
+
 export interface Product {
   _id: string;
   name: string;
@@ -28,11 +30,16 @@ const initialState: ProductState = {
 // Fetch all products
 export const fetchProducts = createAsyncThunk<
   Product[],
-  void,
+  string | undefined,
   { rejectValue: string }
->('products/fetchProducts', async (_, { rejectWithValue }) => {
+>('products/fetchProducts', async (keyword, { rejectWithValue }) => {
   try {
-    const response = await axios.get('/api/products');
+    
+    const response = await axios.get('/api/products', {
+      params: {
+        search: keyword || '',
+      },
+    });
     return response.data;
   } catch (err) {
     const error = err as AxiosError;
@@ -46,6 +53,27 @@ export const fetchProducts = createAsyncThunk<
     return rejectWithValue('An unknown error occurred');
   }
 });
+
+// export const fetchProducts = createAsyncThunk<
+//   Product[],
+//   void,
+//   { rejectValue: string }
+// >('products/fetchProducts', async (_, { rejectWithValue }) => {
+//   try {
+//     const response = await axios.get('/api/products');
+//     return response.data;
+//   } catch (err) {
+//     const error = err as AxiosError;
+//     if (axios.isAxiosError(error)) {
+//       const errorMessage =
+//         typeof error.response?.data === 'string'
+//           ? error.response.data
+//           : 'Failed to fetch products';
+//       return rejectWithValue(errorMessage);
+//     }
+//     return rejectWithValue('An unknown error occurred');
+//   }
+// });
 
 // Fetch a single product by ID
 export const fetchProductById = createAsyncThunk<
