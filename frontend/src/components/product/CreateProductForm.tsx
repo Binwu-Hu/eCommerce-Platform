@@ -48,14 +48,10 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
   };
 
   const handleSubmit = async () => {
-  //   console.log('Form submitted with:', formData);
-    // console.log('Product.id:', product?._id);
     try {
       if (product && product._id) {
-        // console.log('Updating product:', product._id, formData);
         await dispatch(updateProduct({ id: product._id, data: formData }));
       } else {
-        // console.log('Creating product:', formData);
         await dispatch(createProduct(formData as Product));
       }
       navigate('/');
@@ -65,62 +61,85 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
   };
 
   return (
-    <div className='container mx-auto py-8 px-4'>
+    <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md'>
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        {product ? 'Update Product' : 'Create New Product'}
+      </h2>
+
       <Form layout='vertical' onFinish={handleSubmit}>
-        <Form.Item label='Product name' required>
+        <Form.Item label='Product Name' required>
           <Input
             name='name'
-            value={formData.name}
+            value={formData?.name}
             onChange={handleInputChange}
-            placeholder='Product name'
-          />
-        </Form.Item>
-        <Form.Item label='Product Description' required>
-          <Input.TextArea
-            name='description'
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder='Product Description'
-          />
-        </Form.Item>
-        <Form.Item label='Category' required>
-          <Input
-            name='category'
-            value={formData.category}
-            onChange={handleInputChange}
-            placeholder='Category'
-          />
-        </Form.Item>
-        <Form.Item label='Price' required>
-          <Input
-            name='price'
-            value={formData.price}
-            onChange={handleInputChange}
-            type='number'
-            placeholder='Price'
-          />
-        </Form.Item>
-        <Form.Item label='In Stock Quantity' required>
-          <Input
-            name='stock'
-            value={formData.stock}
-            onChange={handleInputChange}
-            type='number'
-            placeholder='In Stock Quantity'
-          />
-        </Form.Item>
-        <Form.Item label='Add Image Link' required>
-          <Input
-            name='image'
-            value={formData.image}
-            onChange={handleInputChange}
-            placeholder='http://'
+            placeholder='Enter product name'
+            className='rounded-md'
           />
         </Form.Item>
 
-        <Button type='primary' htmlType='submit' className='bg-blue-500'>
-          {product ? 'Update Product' : 'Add Product'}
-        </Button>
+        <Form.Item label='Product Description' required>
+          <Input.TextArea
+            name='description'
+            value={formData?.description}
+            onChange={handleInputChange}
+            placeholder='Enter product description'
+            className='rounded-md'
+          />
+        </Form.Item>
+
+        <Form.Item label='Category' required>
+          <Input
+            name='category'
+            value={formData?.category}
+            onChange={handleInputChange}
+            placeholder='Enter category'
+            className='rounded-md'
+          />
+        </Form.Item>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Form.Item label='Price' required>
+            <Input
+              name='price'
+              value={formData?.price}
+              onChange={handleInputChange}
+              type='number'
+              placeholder='Enter price'
+              className='rounded-md'
+            />
+          </Form.Item>
+
+          <Form.Item label='In Stock Quantity' required>
+            <Input
+              name='stock'
+              value={formData?.stock}
+              onChange={handleInputChange}
+              type='number'
+              placeholder='Enter stock quantity'
+              className='rounded-md'
+            />
+          </Form.Item>
+        </div>
+
+        <Form.Item label='Image URL' required>
+          <Input
+            name='image'
+            value={formData?.image}
+            onChange={handleInputChange}
+            placeholder='http://'
+            className='rounded-md'
+          />
+        </Form.Item>
+
+        <div className="text-center mt-6">
+          <Button 
+            type='primary' 
+            htmlType='submit' 
+            className='w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg'
+          >
+            {product ? 'Update Product' : 'Add Product'}
+          </Button>
+        </div>
       </Form>
     </div>
   );
