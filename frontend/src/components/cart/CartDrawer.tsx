@@ -4,7 +4,6 @@ import React, { useEffect } from 'react';
 import {
   applyDiscountCode,
   fetchCart,
-  resetCart,
 } from '../../features/cart/cartSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -34,11 +33,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
     if (discountCode) {
       dispatch(applyDiscountCode(discountCode));
     }
-  };
-
-  // Handle reset of cart (example functionality)
-  const handleResetCart = () => {
-    dispatch(resetCart());
   };
 
   return (
@@ -113,15 +107,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
               {/* Buttons */}
               <Button type='primary' size='large' className='w-full mb-2'>
                 Continue to checkout
-              </Button>
-
-              <Button
-                type='text'
-                danger
-                onClick={handleResetCart}
-                className='w-full'
-              >
-                Reset Cart
               </Button>
             </>
           )}

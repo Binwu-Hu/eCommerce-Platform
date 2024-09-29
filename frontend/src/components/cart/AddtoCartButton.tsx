@@ -1,22 +1,49 @@
-import React, { useState } from 'react';
+import { AppDispatch, RootState } from '../../app/store';
+import React, { useEffect, useState } from 'react';
 import {
   addItemToCart,
+  fetchCart,
   removeItemFromCart,
   updateCartItemQuantityLocal,
 } from '../../features/cart/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { AppDispatch } from '../../app/store';
 import { Button } from 'antd';
-import { useDispatch } from 'react-redux';
 
-interface CartActionsProps {
+interface AddtoCartButtonProps {
   productId: string;
   text: string;
 }
 
-const CartActions: React.FC<CartActionsProps> = ({ productId, text }) => {
+const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
+  productId,
+  text,
+}) => {
   const dispatch = useDispatch<AppDispatch>();
   const [quantity, setQuantity] = useState<number>(0);
+  const { items } = useSelector((state: RootState) => state.cart);
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCart()).then(() => {
+        const cartItem = items.find((item) => item.productId === productId);
+        if (cartItem) {
+          setQuantity(cartItem.quantity);
+        }
+      });
+    } else {
+      const localCartItems = JSON.parse(
+        localStorage.getItem('cartItems') || '[]'
+      );
+      const localCartItem = localCartItems.find(
+        (item: { productId: string }) => item.productId === productId
+      );
+      if (localCartItem) {
+        setQuantity(localCartItem.quantity);
+      }
+    }
+  }, [dispatch, isAuthenticated, items, productId]);
 
   const handleAddToCart = () => {
     if (quantity === 0) {
@@ -71,4 +98,4 @@ const CartActions: React.FC<CartActionsProps> = ({ productId, text }) => {
   );
 };
 
-export default CartActions;
+export default AddtoCartButton;
