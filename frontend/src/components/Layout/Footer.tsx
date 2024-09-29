@@ -13,7 +13,7 @@ const { Footer } = Layout;
 const AppFooter: React.FC = () => {
   return (
     <Footer className='bg-black text-white'>
-      <div className='flex justify-between items-center border-t border-gray-700 pt-4'>
+      <div className='flex flex-col md:flex-row justify-between items-center border-t border-gray-700 pt-4 gap-3 md:gap-0'>
         <p>©2024 All Rights Reserved.</p>
 
         <div className='space-x-4'>

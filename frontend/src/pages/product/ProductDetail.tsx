@@ -50,12 +50,12 @@ const ProductDetail: React.FC = () => {
   }
 
   return (
-    <div className='container mx-auto py-8 px-4'>
+    <div className='container mx-auto py-8 px-6 md:px-2 lg:px-8'>
       <h1 className='text-3xl font-semibold mb-4'>Products Detail</h1>
       {product && (
         <div className='bg-white p-8 rounded-lg shadow-md'>
           {' '}
-          <div className='grid grid-cols-2 gap-8'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
             <ProductImage image={product.image} />
             <ProductInfo product={product} />
           </div>
