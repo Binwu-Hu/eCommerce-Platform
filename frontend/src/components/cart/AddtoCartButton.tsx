@@ -2,7 +2,6 @@ import { AppDispatch, RootState } from '../../app/store';
 import React, { useEffect, useState } from 'react';
 import {
   addItemToCart,
-  fetchCart,
   removeItemFromCart,
   updateCartItemQuantityLocal,
 } from '../../features/cart/cartSlice';
@@ -26,12 +25,10 @@ const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(fetchCart()).then(() => {
-        const cartItem = items.find((item) => item.productId === productId);
-        if (cartItem) {
-          setQuantity(cartItem.quantity);
-        }
-      });
+      const cartItem = items.find((item) => item.productId === productId);
+      if (cartItem) {
+        setQuantity(cartItem.quantity);
+      }
     } else {
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'
