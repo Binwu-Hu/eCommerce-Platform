@@ -1,50 +1,17 @@
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
-import {
-  removeItemFromCart,
-  updateCartItemQuantity,
-} from '../../features/cart/cartSlice';
 
-import { AppDispatch } from '../../app/store';
 import { Button } from 'antd';
 import { CartItem as Item } from '../../features/cart/cartSlice';
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useCartQuantityHandler } from './useCartQuantityHandler';
 
 interface CartItemProps {
-  item: Item
+  item: Item;
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  // Handle quantity decrease
-  const handleDecrease = () => {
-    if (item.quantity > 1) {
-      dispatch(
-        updateCartItemQuantity({
-          productId: item.productId,
-          quantity: item.quantity - 1,
-        })
-      );
-    } else {
-      handleRemove(); // Remove item if the quantity is 1 and user clicks minus
-    }
-  };
-
-  // Handle quantity increase
-  const handleIncrease = () => {
-    dispatch(
-      updateCartItemQuantity({
-        productId: item.productId,
-        quantity: item.quantity + 1,
-      })
-    );
-  };
-
-  // Handle removing an item from the cart
-  const handleRemove = () => {
-    dispatch(removeItemFromCart(item.productId));
-  };
+  const { handleIncrement, handleRemoveFromCart, handleDecrement } =
+    useCartQuantityHandler(item.productId);
 
   return (
     <div className='flex justify-between items-center mb-4'>
@@ -64,11 +31,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       <div className='flex items-center space-x-2'>
         <Button
           icon={<MinusOutlined />}
-          onClick={handleDecrease}
-          disabled={item.quantity === 1} // Disable if quantity is 1 (use remove instead)
+          onClick={handleDecrement}
+          disabled={item.quantity === 1}
         />
         <span>{item.quantity}</span>
-        <Button icon={<PlusOutlined />} onClick={handleIncrease} />
+        <Button icon={<PlusOutlined />} onClick={handleIncrement} />
       </div>
 
       {/* Remove Item Button */}
@@ -76,7 +43,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         type='text'
         className='text-red-500'
         icon={<DeleteOutlined />}
-        onClick={handleRemove}
+        onClick={() => handleRemoveFromCart(item.productId)}
       >
         Remove
       </Button>
