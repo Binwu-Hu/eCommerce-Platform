@@ -1,52 +1,52 @@
-import { AppDispatch, RootState } from '../../app/store'
-import { Button, Pagination, Spin } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../../app/store';
+import { Button, Pagination, Spin } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import ProductCard from './ProductCard'
-import SortingOptions from './SortingOptions'
-import { fetchProducts } from '../../features/product/productSlice'
-import { useNavigate } from 'react-router-dom'
+import ProductCard from './ProductCard';
+import SortingOptions from './SortingOptions';
+import { fetchProducts } from '../../features/product/productSlice';
+import { useNavigate } from 'react-router-dom';
 
 const ProductList: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>()
-  const navigate = useNavigate()
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { products, loading, error } = useSelector(
     (state: RootState) => state.products
-  )
+  );
 
   const isAdmin = useSelector((state: RootState) => state.user?.user?.isAdmin);
 
   // Pagination and sorting states
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortOption, setSortOption] = useState('last_added')
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOption, setSortOption] = useState('last_added');
 
   useEffect(() => {
-    dispatch(fetchProducts())
-  }, [dispatch])
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   const sortProducts = (option: string) => {
-    setSortOption(option)
-  }
+    setSortOption(option);
+  };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
+    setCurrentPage(page);
+  };
 
   const handleAddProduct = () => {
-    navigate('/create-product')
-  }
+    navigate('/create-product');
+  };
 
   if (loading) {
     return (
       <div className='flex justify-center items-center h-96'>
         <Spin size='large' />
       </div>
-    )
+    );
   }
 
   if (error) {
-    return <div className='text-red-500 text-center'>Error: {error}</div>
+    return <div className='text-red-500 text-center'>Error: {error}</div>;
   }
 
   return (
@@ -82,7 +82,7 @@ const ProductList: React.FC = () => {
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductList
+export default ProductList;

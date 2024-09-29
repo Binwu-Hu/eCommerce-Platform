@@ -13,13 +13,13 @@ import React from 'react';
 interface AddtoCartButtonProps {
   productId: string;
   text: string;
-  className?:string
+  className?: string;
 }
 
 const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
   productId,
   text,
-  className
+  className,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { items } = useSelector((state: RootState) => state.cart);
@@ -82,11 +82,7 @@ const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
   return (
     <>
       {quantity === 0 ? (
-        <Button
-          type='primary'
-          className={className}
-          onClick={handleAddToCart}
-        >
+        <Button type='primary' className={className} onClick={handleAddToCart}>
           {text}
         </Button>
       ) : (
