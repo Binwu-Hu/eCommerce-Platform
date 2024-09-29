@@ -7,25 +7,25 @@ import {
   updateCartItemQuantity,
 } from '../controllers/cartController.js';
 
-import express from 'express';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import express from 'express';
 
 const router = express.Router();
 
 // Add an item to the cart
-router.post('/add', addItemToCart);
+router.post('/add', authMiddleware, addItemToCart);
 
 // Remove an item from the cart
-router.delete('/remove/:productId', removeItemFromCart);
+router.delete('/remove/:productId', authMiddleware, removeItemFromCart);
 
 // Apply a discount code
-router.post('/discount', applyDiscountCode);
+router.post('/discount', authMiddleware, applyDiscountCode);
 
 // Get cart details
-router.get('/', getCart);
+router.get('/', authMiddleware, getCart);
 
 // Update the quantity of a product in the cart
-router.put('/update', updateCartItemQuantity);
+router.put('/update', authMiddleware, updateCartItemQuantity);
 
 // Sync guest cart with the backend after login (logged-in users)
 router.post('/sync', authMiddleware, syncCart);

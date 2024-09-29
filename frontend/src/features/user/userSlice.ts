@@ -27,14 +27,17 @@ interface UserState {
 const token = localStorage.getItem('token');
 const storedUser = localStorage.getItem('user');
 
+
 // Initial state with localStorage rehydration
 const initialState: UserState = {
-  user: storedUser && storedUser !== 'undefined' && storedUser !== 'null' ? JSON.parse(storedUser) : null,
+  user:
+    storedUser && storedUser !== 'undefined' && storedUser !== 'null'
+      ? JSON.parse(storedUser)
+      : null,
   isAuthenticated: !!token,
   loading: false,
   error: null,
 };
-
 
 export const loginUser = createAsyncThunk(
   'user/login',
@@ -46,12 +49,15 @@ export const loginUser = createAsyncThunk(
       const response = await loginUserApi(data);
 
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify({
-        id: response._id,
-        name: response.name,
-        email: response.email,
-        isAdmin: response.isAdmin,
-      }));
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: response._id,
+          name: response.name,
+          email: response.email,
+          isAdmin: response.isAdmin,
+        })
+      );
 
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'
@@ -69,19 +75,27 @@ export const loginUser = createAsyncThunk(
 // Async action for signing up the user
 export const signupUser = createAsyncThunk(
   'user/signup',
-  async (data: { name: string; email: string; password: string }, { dispatch, rejectWithValue }) => {
+  async (
+    data: { name: string; email: string; password: string },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       const response = await signupUserApi(data);
 
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify({
-        id: response._id,
-        name: response.name,
-        email: response.email,
-        isAdmin: response.isAdmin,
-      }));
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: response._id,
+          name: response.name,
+          email: response.email,
+          isAdmin: response.isAdmin,
+        })
+      );
 
-      const localCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      const localCartItems = JSON.parse(
+        localStorage.getItem('cartItems') || '[]'
+      );
       if (localCartItems.length > 0) {
         dispatch(syncCart(localCartItems));
       }
@@ -124,7 +138,9 @@ const userSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem('token');
+      localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('cartItems');
       state.user = null;
       state.isAuthenticated = false;
     },
@@ -144,25 +160,29 @@ const userSlice = createSlice({
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
       console.log('loginUser payload:', action.payload);
+      console.log('loginUser payload:', action.payload);
       state.loading = false;
       state.isAuthenticated = true;
-      
+
       state.user = {
         id: action.payload._id,
         name: action.payload.name,
         email: action.payload.email,
         isAdmin: action.payload.isAdmin,
-        token: action.payload.token
+        token: action.payload.token,
       };
-    
-      localStorage.setItem('token', action.payload.token); 
-      localStorage.setItem('user', JSON.stringify({
-        id: action.payload._id,
-        name: action.payload.name,
-        email: action.payload.email,
-        isAdmin: action.payload.isAdmin
-      }));
-    });    
+
+      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: action.payload._id,
+          name: action.payload.name,
+          email: action.payload.email,
+          isAdmin: action.payload.isAdmin,
+        })
+      );
+    });
     builder.addCase(loginUser.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
@@ -180,15 +200,18 @@ const userSlice = createSlice({
         name: action.payload.name,
         email: action.payload.email,
         isAdmin: action.payload.isAdmin,
-        token: action.payload.token
+        token: action.payload.token,
       };
-      localStorage.setItem('token', action.payload.token); 
-      localStorage.setItem('user', JSON.stringify({
-        id: action.payload._id,
-        name: action.payload.name,
-        email: action.payload.email,
-        isAdmin: action.payload.isAdmin
-      }));
+      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: action.payload._id,
+          name: action.payload.name,
+          email: action.payload.email,
+          isAdmin: action.payload.isAdmin,
+        })
+      );
     });
     builder.addCase(signupUser.rejected, (state, action) => {
       state.loading = false;

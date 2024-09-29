@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
+import { AppDispatch } from '../../app/store';
 import { fetchProductById } from '../product/productSlice';
 
 export interface CartItem {
@@ -11,7 +12,7 @@ export interface CartItem {
   image: string;
 }
 
-interface LocalCartItem {
+interface SimplifiedCartItem {
   productId: string;
   quantity: number;
 }
@@ -52,7 +53,32 @@ const calculateTotals = (state: CartState) => {
   state.total = state.subTotal + state.tax - state.discountAmount;
 };
 
-// Fetch cart details (from server if authenticated, from localStorage if not)
+const convertToDetailedCartItems = async (
+  cartItems: SimplifiedCartItem[],
+  dispatch: AppDispatch
+): Promise<CartItem[]> => {
+  try {
+    const detailedCartItems = await Promise.all(
+      cartItems.map(async (cartItem: SimplifiedCartItem) => {
+        const product = await dispatch(
+          fetchProductById(cartItem.productId)
+        ).unwrap();
+        return {
+          productId: cartItem.productId,
+          quantity: cartItem.quantity,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        };
+      })
+    );
+    return detailedCartItems;
+  } catch (err) {
+    console.log(err);
+    throw new Error('Something went wrong fetching the cart items');
+  }
+};
+
 // Fetch cart details (from server if authenticated, from localStorage if not)
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
@@ -62,13 +88,13 @@ export const fetchCart = createAsyncThunk(
     if (user.isAuthenticated) {
       // Fetch cart from the server for authenticated users
       try {
-        const token = localStorage.getItem('token'); // Get token from localStorage
+        const token = localStorage.getItem('token');
         const response = await axios.get('/api/cart', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        return response.data; // Return cart data from server
+        return response.data;
       } catch (err) {
         const error = err as AxiosError;
         return rejectWithValue(
@@ -77,32 +103,24 @@ export const fetchCart = createAsyncThunk(
       }
     } else {
       // Unauthenticated users: fetch cart from localStorage and get product details
-      const localCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      const localCartItems = JSON.parse(
+        localStorage.getItem('cartItems') || '[]'
+      );
 
       if (localCartItems.length > 0) {
         try {
           // Create a new array to hold the detailed cart items
-          const detailedCartItems = await Promise.all(
-            localCartItems.map(async (cartItem: LocalCartItem) => {
-              // Fetch full product details by product ID using fetchProductById
-              const product = await dispatch(fetchProductById(cartItem.productId)).unwrap();
-
-              // Return a detailed cart item
-              return {
-                productId: cartItem.productId,
-                quantity: cartItem.quantity,
-                name: product.name,
-                price: product.price,
-                image: product.image,
-              };
-            })
+          const detailedCartItems = await convertToDetailedCartItems(
+            localCartItems,
+            dispatch as AppDispatch
           );
 
           return { items: detailedCartItems };
         } catch (err) {
           const error = err as AxiosError;
           return rejectWithValue(
-            error.response?.data || 'Something went wrong fetching the cart items'
+            error.response?.data ||
+              'Something went wrong fetching the cart items'
           );
         }
       } else {
@@ -111,7 +129,6 @@ export const fetchCart = createAsyncThunk(
     }
   }
 );
-
 
 // Add item to cart (both localStorage and server)
 export const addItemToCart = createAsyncThunk(
@@ -125,10 +142,17 @@ export const addItemToCart = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.post('/api/cart/add', {
-          productId,
-          quantity,
-        });
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+          '/api/cart/add',
+          { productId, quantity },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log("here: ", response.data)
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -152,7 +176,12 @@ export const removeItemFromCart = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.delete(`/api/cart/remove/${productId}`);
+        const token = localStorage.getItem('token');
+        const response = await axios.delete(`/api/cart/remove/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -180,10 +209,19 @@ export const updateCartItemQuantity = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.put('/api/cart/update', {
-          productId,
-          quantity,
-        });
+        const token = localStorage.getItem('token');
+        const response = await axios.put(
+          '/api/cart/update',
+          {
+            productId,
+            quantity,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -208,9 +246,16 @@ export const applyDiscountCode = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.post('/api/cart/discount', {
-          discountCode,
-        });
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+          '/api/cart/discount',
+          { discountCode },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -230,9 +275,17 @@ export const syncCart = createAsyncThunk(
   'cart/syncCart',
   async (localCartItems: CartItem[], { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/cart/sync', {
-        items: localCartItems,
-      });
+      const token = localStorage.getItem('token');
+
+      const response = await axios.post(
+        '/api/cart/sync',
+        { items: localCartItems },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       localStorage.removeItem('cartItems'); // Clear localStorage after syncing
       return response.data;
     } catch (err) {
@@ -305,6 +358,67 @@ const cartSlice = createSlice({
       calculateTotals(state); // Calculate totals after fetching
     });
     builder.addCase(fetchCart.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Add Item to Cart
+    builder.addCase(addItemToCart.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(addItemToCart.fulfilled, (state, action) => {
+      state.loading = false;
+      state.items = action.payload.items;
+      calculateTotals(state);
+    });
+    builder.addCase(addItemToCart.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Remove Item from Cart
+    builder.addCase(removeItemFromCart.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(removeItemFromCart.fulfilled, (state, action) => {
+      state.loading = false;
+      state.items = action.payload.items;
+      calculateTotals(state);
+    });
+    builder.addCase(removeItemFromCart.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Update Item Quantity
+    builder.addCase(updateCartItemQuantity.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(updateCartItemQuantity.fulfilled, (state, action) => {
+      state.loading = false;
+      state.items = action.payload.items;
+      calculateTotals(state);
+    });
+    builder.addCase(updateCartItemQuantity.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Apply Discount Code
+    builder.addCase(applyDiscountCode.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(applyDiscountCode.fulfilled, (state, action) => {
+      state.loading = false;
+      state.discountCode = action.payload.discountCode;
+      state.discountAmount = action.payload.discountAmount;
+      calculateTotals(state);
+    });
+    builder.addCase(applyDiscountCode.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });
