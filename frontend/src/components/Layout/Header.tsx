@@ -28,7 +28,10 @@ const MergedHeader = () => {
           <Link to='/' style={{ color: 'white' }}>
             E-Commerce
           </Link>
-          <span className='text-base text-white'> Management Chuwa</span>
+          <span className='text-base text-white  hidden md:inline'>
+            {' '}
+            Management Chuwa
+          </span>
         </div>
 
         {/* <div className='flex items-center space-x-4 w-1/4 flex-shrink'>
@@ -39,7 +42,7 @@ const MergedHeader = () => {
           />
         </div> */}
 
-        <div>
+        <div className='hidden lg:block'>
           <SearchBox />
         </div>
 
