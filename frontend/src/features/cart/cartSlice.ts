@@ -348,6 +348,67 @@ const cartSlice = createSlice({
       state.error = action.payload as string;
     });
 
+    // Add Item to Cart
+    builder.addCase(addItemToCart.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(addItemToCart.fulfilled, (state, action) => {
+      state.loading = false;
+      state.items = action.payload.items;
+      calculateTotals(state);
+    });
+    builder.addCase(addItemToCart.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Remove Item from Cart
+    builder.addCase(removeItemFromCart.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(removeItemFromCart.fulfilled, (state, action) => {
+      state.loading = false;
+      state.items = action.payload.items;
+      calculateTotals(state);
+    });
+    builder.addCase(removeItemFromCart.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Update Item Quantity
+    builder.addCase(updateCartItemQuantity.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(updateCartItemQuantity.fulfilled, (state, action) => {
+      state.loading = false;
+      state.items = action.payload.items;
+      calculateTotals(state);
+    });
+    builder.addCase(updateCartItemQuantity.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // Apply Discount Code
+    builder.addCase(applyDiscountCode.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(applyDiscountCode.fulfilled, (state, action) => {
+      state.loading = false;
+      state.discountCode = action.payload.discountCode;
+      state.discountAmount = action.payload.discountAmount;
+      calculateTotals(state);
+    });
+    builder.addCase(applyDiscountCode.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
     // Sync guest cart with server after login
     builder.addCase(syncCart.pending, (state) => {
       state.loading = true;
