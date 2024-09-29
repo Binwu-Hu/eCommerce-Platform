@@ -2,11 +2,11 @@ import { AppDispatch, RootState } from '../../app/store';
 import { Button, Pagination, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import ProductCard from './ProductCard';
 import SortingOptions from './SortingOptions';
 import { fetchProducts } from '../../features/product/productSlice';
-import { useNavigate, useParams } from 'react-router-dom';
 
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,25 +19,60 @@ const ProductList: React.FC = () => {
 
   const isAdmin = useSelector((state: RootState) => state.user?.user?.isAdmin);
 
-  // Pagination and sorting states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortOption, setSortOption] = useState('last_added');
+  // get page number from localStorage
+  const getStoredPage = () => {
+    const storedPage = localStorage.getItem('currentPage');
+    return storedPage ? Number(storedPage) : 1;
+  };
+
+  // get sorting mode from localStorage
+  const getStoredSortOption = () => {
+    const storedSort = localStorage.getItem('sortOption');
+    return storedSort || 'id_asc'; // default sort by _id ascending
+  };
+
+  const [currentPage, setCurrentPage] = useState(getStoredPage());
+  const [sortOption, setSortOption] = useState(getStoredSortOption());
+  const pageSize = 8;
 
   useEffect(() => {
     dispatch(fetchProducts(keyword));
   }, [dispatch, keyword]);
 
-  const sortProducts = (option: string) => {
-    setSortOption(option);
-  };
-
+  // store currentPage
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    localStorage.setItem('currentPage', String(page));
+  };
+
+  // store sorting mode
+  const sortProducts = (option: string) => {
+    setSortOption(option);
+    localStorage.setItem('sortOption', option);
   };
 
   const handleAddProduct = () => {
     navigate('/create-product');
   };
+
+  // sorting
+  const sortedProducts = [...products].sort((a, b) => {
+    if (sortOption === 'price_low_to_high') {
+      return a.price - b.price;
+    } else if (sortOption === 'price_high_to_low') {
+      return b.price - a.price;
+    } else if (sortOption === 'id_asc') {
+      return a._id.localeCompare(b._id); 
+    } else {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+  });
+
+  // get current page products
+  const paginatedProducts = sortedProducts.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   if (loading) {
     return (
@@ -70,7 +105,7 @@ const ProductList: React.FC = () => {
       </div>
 
       <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-6'>
-        {products.map((product) => (
+        {paginatedProducts.map((product) => (
           <ProductCard key={product._id} product={product} />
         ))}
       </div>
@@ -80,7 +115,7 @@ const ProductList: React.FC = () => {
           current={currentPage}
           onChange={handlePageChange}
           total={products.length}
-          pageSize={8} // Assuming 8 products per page
+          pageSize={pageSize}
         />
       </div>
     </div>
