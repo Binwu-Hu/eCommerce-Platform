@@ -1,5 +1,4 @@
-import CreateProductForm from '../../components/product/CreateProductForm'; // Only show if admin
-import ProductList from '../../components/product/ProductList';
+import CreateProductForm from '../../components/product/CreateProductForm';
 import React from 'react';
 
 const ProductPage: React.FC = () => {
@@ -11,8 +10,6 @@ const ProductPage: React.FC = () => {
           <CreateProductForm />
         </div>
       )}
-
-      <ProductList />
     </div>
   );
 };
