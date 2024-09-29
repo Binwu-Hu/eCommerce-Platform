@@ -53,9 +53,12 @@ const ProductDetail: React.FC = () => {
     <div className='container mx-auto py-8 px-4'>
       <h1 className='text-3xl font-semibold mb-4'>Products Detail</h1>
       {product && (
-        <div className='grid grid-cols-2 gap-8'>
-          <ProductImage image={product.image} />
-          <ProductInfo product={product} />
+        <div className='bg-white p-8 rounded-lg shadow-md'>
+          {' '}
+          <div className='grid grid-cols-2 gap-8'>
+            <ProductImage image={product.image} />
+            <ProductInfo product={product} />
+          </div>
         </div>
       )}
     </div>

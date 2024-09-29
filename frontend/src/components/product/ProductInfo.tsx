@@ -14,14 +14,15 @@ const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
             {product.stock === 0 ? 'Out of Stock' : ''}
           </span>
         </p>
-        <p className='text-gray-600 mb-4'>{product.description}</p>
+        <p className='text-gray-600 mb-6'>{product.description}</p>{' '}
       </div>
 
-      <div className='flex space-x-4'>
-        <Button type='primary' className='bg-blue-500'>
+      <div className='flex space-x-4 mt-6'>
+        {' '}
+        <Button type='primary' className='bg-blue-500 h-10 text-lg px-6'>
           Add To Cart
         </Button>
-        <Button>Edit</Button>
+        <Button className='h-10 text-lg px-6'>Edit</Button>
       </div>
     </div>
   );
