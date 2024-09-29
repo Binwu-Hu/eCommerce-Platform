@@ -23,28 +23,41 @@ interface UserState {
   error: string | null;
 }
 
+// Retrieve user and token from localStorage
 const token = localStorage.getItem('token');
+const storedUser = localStorage.getItem('user');
+
+// Initial state with localStorage rehydration
 const initialState: UserState = {
-  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
+  user:
+    storedUser && storedUser !== 'undefined' && storedUser !== 'null'
+      ? JSON.parse(storedUser)
+      : null,
   isAuthenticated: !!token,
   loading: false,
   error: null,
 };
 
-
 export const loginUser = createAsyncThunk(
   'user/login',
   async (
-    data: { email: string; password: string; isAdmin: boolean },
+    data: { email: string; password: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
       const response = await loginUserApi(data);
 
       localStorage.setItem('token', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: response._id,
+          name: response.name,
+          email: response.email,
+          isAdmin: response.isAdmin,
+        })
+      );
 
-      // Sync the guest cart to the server-side cart after login
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'
       );
@@ -58,20 +71,27 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Signup user action
+// Async action for signing up the user
 export const signupUser = createAsyncThunk(
   'user/signup',
   async (
-    data: { name: string; email: string; password: string; isAdmin: boolean },
+    data: { name: string; email: string; password: string },
     { dispatch, rejectWithValue }
   ) => {
     try {
       const response = await signupUserApi(data);
 
-      localStorage.setItem('token', response.token); 
-      localStorage.setItem('user', JSON.stringify(response.user)); 
-      
-      // Sync the guest cart to the server-side cart after signup
+      localStorage.setItem('token', response.token);
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: response._id,
+          name: response.name,
+          email: response.email,
+          isAdmin: response.isAdmin,
+        })
+      );
+
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'
       );
@@ -116,7 +136,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-    localStorage.removeItem('token');
+      localStorage.removeItem('token');
       localStorage.removeItem('user');
       state.user = null;
       state.isAuthenticated = false;
@@ -136,11 +156,28 @@ const userSlice = createSlice({
       state.error = null;
     });
     builder.addCase(loginUser.fulfilled, (state, action) => {
+      console.log('loginUser payload:', action.payload);
       state.loading = false;
       state.isAuthenticated = true;
-      state.user = action.payload.user;
-      localStorage.setItem('token', action.payload.token); 
-      localStorage.setItem('user', JSON.stringify(action.payload)); 
+
+      state.user = {
+        id: action.payload._id,
+        name: action.payload.name,
+        email: action.payload.email,
+        isAdmin: action.payload.isAdmin,
+        token: action.payload.token,
+      };
+
+      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: action.payload._id,
+          name: action.payload.name,
+          email: action.payload.email,
+          isAdmin: action.payload.isAdmin,
+        })
+      );
     });
     builder.addCase(loginUser.rejected, (state, action) => {
       state.loading = false;
@@ -154,9 +191,23 @@ const userSlice = createSlice({
     builder.addCase(signupUser.fulfilled, (state, action) => {
       state.loading = false;
       state.isAuthenticated = true;
-      state.user = action.payload.user;
-      localStorage.setItem('token', action.payload.token); 
-      localStorage.setItem('user', JSON.stringify(action.payload));
+      state.user = {
+        id: action.payload._id,
+        name: action.payload.name,
+        email: action.payload.email,
+        isAdmin: action.payload.isAdmin,
+        token: action.payload.token,
+      };
+      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          id: action.payload._id,
+          name: action.payload.name,
+          email: action.payload.email,
+          isAdmin: action.payload.isAdmin,
+        })
+      );
     });
     builder.addCase(signupUser.rejected, (state, action) => {
       state.loading = false;

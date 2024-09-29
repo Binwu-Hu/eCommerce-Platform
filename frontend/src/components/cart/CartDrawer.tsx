@@ -47,7 +47,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
       placement='right'
       onClose={onClose}
       visible={visible}
-      width={400}
+      width={600}
       className='bg-gray-100'
     >
       {loading ? (

@@ -23,7 +23,7 @@ export const addItemToCart = async (req, res) => {
       cart = new Cart({ user: userId, items: [], totalPrice: 0 });
     }
 
-    console.log("cart:", cart)
+    console.log('cart:', cart);
 
     const productInCart = cart.items.find(
       (item) => item.product.toString() === productId
@@ -50,6 +50,9 @@ export const addItemToCart = async (req, res) => {
       const newCartItem = {
         product: product._id,
         quantity: quantity,
+        price: product.price,
+        image: product.image,
+        name: product.name,
       };
       cart.items.push(newCartItem);
     }
@@ -160,7 +163,27 @@ export const getCart = async (req, res) => {
       cart.discountAmount
     ).toFixed(2);
 
-    res.status(200).json(cart);
+    const formattedCartItems = cart.items.map((item) => ({
+      productId: item.product._id,
+      name: item.product.name,
+      price: item.product.price,
+      quantity: item.quantity,
+      image: item.product.image,
+    }));
+
+    const currCart = {
+      user: userId,
+      items: formattedCartItems,
+      discountCode: cart.discountCode || null,
+      discountAmount: cart.discountAmount || 0,
+      tax: cart.tax,
+      subTotal: cart.subTotal,
+      total: cart.total,
+      createdAt: cart.createdAt,
+    };
+
+    console.log('currCart:', currCart);
+    res.status(200).json(currCart);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching cart details', error });
   }
@@ -203,6 +226,7 @@ export const updateCartItemQuantity = async (req, res) => {
     if (productInCart) {
       productInCart.quantity = quantity;
       await cart.save();
+      console.log("cart after update: ", cart)
       return res.status(200).json(cart);
     }
 
