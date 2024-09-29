@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import CartTrigger from '../cart/CartTrigger';
 import { logout } from '../../features/user/userSlice';
+import SearchBox from '../product/SearchBox';
 
 const { Header } = Layout;
 
@@ -30,12 +31,16 @@ const MergedHeader = () => {
           <span className='text-base text-white'> Management Chuwa</span>
         </div>
 
-        <div className='flex items-center space-x-4 w-1/4 flex-shrink'>
+        {/* <div className='flex items-center space-x-4 w-1/4 flex-shrink'>
           <Input
             placeholder='Search'
             suffix={<SearchOutlined className='text-gray-400' />}
             className='rounded-md w-full'
           />
+        </div> */}
+
+        <div>
+          <SearchBox />
         </div>
 
         <div className='flex items-center space-x-6'>

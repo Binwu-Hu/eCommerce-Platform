@@ -6,17 +6,19 @@ import { useSelector } from 'react-redux';
 
 interface ProductEditProps {
   product: Product;
+  className?: string;
 }
 
-const ProductEdit: React.FC<ProductEditProps> = ({ product }) => {
+const ProductEdit: React.FC<ProductEditProps> = ({ product, className }) => {
   const navigate = useNavigate();
-  
+
   const currentUser = useSelector((state: any) => state.user.user);
 
   const handleEditClick = (event: React.MouseEvent) => {
     event.stopPropagation();
+
     if (product.owner !== currentUser?.id) {
-      message.error('You are not allowed to edit other vendors\' product.');
+      message.error("You are not allowed to edit other vendors' product.");
       return;
     }
 
@@ -24,7 +26,7 @@ const ProductEdit: React.FC<ProductEditProps> = ({ product }) => {
   };
 
   return product.owner === currentUser?.id ? (
-    <Button type="default" onClick={handleEditClick}>
+    <Button type='default' onClick={handleEditClick} className={className}>
       Edit
     </Button>
   ) : null;

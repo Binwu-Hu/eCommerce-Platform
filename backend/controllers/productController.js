@@ -5,7 +5,10 @@ import Product from '../models/productModel.js';
 // @access Public
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const keyword = req.query.search
+      ? { name: { $regex: req.query.search, $options: 'i' } }
+      : {};
+    const products = await Product.find({ ...keyword });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -47,7 +50,7 @@ export const createProduct = async (req, res) => {
       price,
       stockQuantity: stock,
       image,
-      owner
+      owner,
     });
 
     const createdProduct = await newProduct.save();
@@ -68,9 +71,19 @@ export const updateProduct = async (req, res) => {
     const { name, description, category, price, stock, image } = req.body;
 
     // Check if all necessary fields are provided in req.body
-    if (!name || !description || !category || price === undefined || stock === undefined || !image) {
+    if (
+      !name ||
+      !description ||
+      !category ||
+      price === undefined ||
+      stock === undefined ||
+      !image
+    ) {
       console.log('Missing fields in request body');
-      return res.status(400).json({ message: 'All fields must be provided: name, description, category, price, stock, image' });
+      return res.status(400).json({
+        message:
+          'All fields must be provided: name, description, category, price, stock, image',
+      });
     }
 
     const product = await Product.findById(req.params.id);
@@ -81,9 +94,14 @@ export const updateProduct = async (req, res) => {
     }
 
     // Authorization check - assuming req.user is available and populated
-    if (product.owner.toString() !== req.user?._id.toString() && !req.user?.isAdmin) {
+    if (
+      product.owner.toString() !== req.user?._id.toString() &&
+      !req.user?.isAdmin
+    ) {
       console.log('User is not authorized to update this product');
-      return res.status(403).json({ message: 'Not authorized to update this product' });
+      return res
+        .status(403)
+        .json({ message: 'Not authorized to update this product' });
     }
 
     // Logging the existing product data before updating
@@ -94,7 +112,7 @@ export const updateProduct = async (req, res) => {
     product.description = description || product.description;
     product.category = category || product.category;
     product.price = price || product.price;
-    product.stockQuantity = stock || product.stockQuantity; 
+    product.stock = stock || product.stockQuantity;
     product.image = image || product.image;
 
     // Save the updated product
@@ -104,7 +122,9 @@ export const updateProduct = async (req, res) => {
     res.json(updatedProduct);
   } catch (error) {
     console.error('Error during product update:', error);
-    res.status(500).json({ message: 'Error updating product', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Error updating product', error: error.message });
   }
 };
 

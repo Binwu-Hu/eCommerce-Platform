@@ -15,7 +15,8 @@ function App() {
     <Router>
       <Routes>
         <Route path='/' element={<Layout />}>
-          <Route index element={<ProductList />} />
+          <Route index={true} element={<ProductList />} />
+          <Route path='/search/:keyword' element={<ProductList />} />
 
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />

@@ -6,18 +6,21 @@ import {
   updateCartItemQuantityLocal,
 } from '../../features/cart/cartSlice';
 import { useDispatch, useSelector } from 'react-redux';
-
 import { Button } from 'antd';
 import React from 'react';
 
 interface AddtoCartButtonProps {
   productId: string;
   text: string;
+  className?: string;
+  disabled?: boolean;
 }
 
 const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
   productId,
   text,
+  className,
+  disabled = false,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { items } = useSelector((state: RootState) => state.cart);
@@ -82,13 +85,15 @@ const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
       {quantity === 0 ? (
         <Button
           type='primary'
-          className='bg-blue-500 h-8 text-lg px-6'
+          danger={disabled}
+          className={className}
           onClick={handleAddToCart}
+          disabled={disabled}
         >
           {text}
         </Button>
       ) : (
-        <div className='flex items-center'>
+        <div>
           <Button onClick={handleDecrement}>-</Button>
           <span className='mx-2'>{quantity}</span>
           <Button onClick={handleIncrement}>+</Button>
