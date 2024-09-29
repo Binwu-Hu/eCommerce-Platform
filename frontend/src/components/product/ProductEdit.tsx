@@ -15,8 +15,9 @@ const ProductEdit: React.FC<ProductEditProps> = ({ product }) => {
 
   const handleEditClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-
-    if (product.owner !== currentUser?._id) {
+    console.log('ProductEdit:', product);
+    console.log('currentUser:', currentUser);
+    if (product.owner !== currentUser?.id) {
       message.error('You are not allowed to edit other vendors\' product.');
       return;
     }
