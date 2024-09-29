@@ -11,6 +11,7 @@ import Layout from './components/Layout'
 // import ProductForm from './pages/ProductForm';
 // import React from 'react';
 import Login from './pages/auth/login'
+import ProductList from './components/product/ProductList'
 import ResetPassword from './pages/auth/resetPassword'
 import Signup from './pages/auth/signup'
 
@@ -19,6 +20,7 @@ function App() {
     <Router>
       <Routes>
         <Route path='/' element={<Layout />}>
+          <Route index element={<ProductList />} />
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
           <Route path='/forgot-password' element={<ForgotPassword />} />
@@ -31,7 +33,7 @@ function App() {
         </Route>
       </Routes>
     </Router>
-  )
+  );
 }
 
 export default App

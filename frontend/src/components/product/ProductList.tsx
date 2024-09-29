@@ -5,30 +5,26 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import ProductCard from './ProductCard';
 import SortingOptions from './SortingOptions';
-import { fetchProducts } from '../../features/products/productSlice';
 
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { products, loading, error } = useSelector(
-    (state: RootState) => state.products
+    (state: RootState) => state.product
   );
-
+  
   // Pagination and sorting states
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, setSortOption] = useState('last_added');
+  
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch({ type: 'products/fetchProducts' });
   }, [dispatch]);
 
-  // Function to handle sorting logic
   const sortProducts = (option: string) => {
     setSortOption(option);
-    // You can extend this logic to sort the products based on the selected option
-    // For example, by updating the products in state or in the backend query
   };
 
-  // Handle pagination
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -63,7 +59,7 @@ const ProductList: React.FC = () => {
           current={currentPage}
           onChange={handlePageChange}
           total={products.length}
-          pageSize={8} // Assuming 8 products per page
+          pageSize={10} // Assuming 8 products per page
         />
       </div>
     </div>
