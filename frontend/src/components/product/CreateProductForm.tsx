@@ -52,7 +52,6 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
       if (product && product._id) {
         await dispatch(updateProduct({ id: product._id, data: formData }));
       } else {
-        // console.log('Creating product:', formData);
         await dispatch(createProduct(formData as Product));
       }
       navigate('/');
