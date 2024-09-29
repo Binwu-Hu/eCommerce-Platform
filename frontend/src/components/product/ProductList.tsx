@@ -11,7 +11,7 @@ const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { products, loading, error } = useSelector(
-    (state: RootState) => state.product
+    (state: RootState) => state.products
   );
 
   // Pagination and sorting states

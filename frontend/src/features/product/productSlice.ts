@@ -32,6 +32,7 @@ export const fetchProducts = createAsyncThunk<
   { rejectValue: string }
 >('products/fetchProducts', async (_, { rejectWithValue }) => {
   try {
+    console.log("here!!!!")
     const response = await axios.get('/api/products');
     return response.data;
   } catch (err) {
