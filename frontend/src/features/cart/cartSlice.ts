@@ -1,12 +1,19 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-interface CartItem {
+import { fetchProductById } from '../product/productSlice';
+
+export interface CartItem {
   productId: string;
   name: string;
   price: number;
   quantity: number;
   image: string;
+}
+
+interface LocalCartItem {
+  productId: string;
+  quantity: number;
 }
 
 interface CartState {
@@ -21,7 +28,7 @@ interface CartState {
 }
 
 const initialState: CartState = {
-  items: JSON.parse(localStorage.getItem('cartItems') || '[]'), // Load items from localStorage
+  items: JSON.parse(localStorage.getItem('cartItems') || '[]'),
   subTotal: 0,
   discountAmount: 0,
   tax: 0,
@@ -31,7 +38,6 @@ const initialState: CartState = {
   error: null,
 };
 
-// Helper function to save cart in localStorage
 const saveCartToLocalStorage = (items: CartItem[]) => {
   localStorage.setItem('cartItems', JSON.stringify(items));
 };
@@ -45,20 +51,21 @@ const calculateTotals = (state: CartState) => {
   state.tax = state.subTotal * 0.1; // Example 10% tax
   state.total = state.subTotal + state.tax - state.discountAmount;
 };
+
+// Fetch cart details (from server if authenticated, from localStorage if not)
 // Fetch cart details (from server if authenticated, from localStorage if not)
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
-  async (_, { getState, rejectWithValue }) => {
-    // Extract user authentication state from Redux store
+  async (_, { getState, dispatch, rejectWithValue }) => {
     const { user } = getState() as { user: { isAuthenticated: boolean } };
 
     if (user.isAuthenticated) {
-      // User is authenticated, fetch the cart from the server
+      // Fetch cart from the server for authenticated users
       try {
         const token = localStorage.getItem('token'); // Get token from localStorage
         const response = await axios.get('/api/cart', {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass token to server
+            Authorization: `Bearer ${token}`,
           },
         });
         return response.data; // Return cart data from server
@@ -69,16 +76,42 @@ export const fetchCart = createAsyncThunk(
         );
       }
     } else {
-      // User is not authenticated, fetch the cart from localStorage
-      const localCartItems = localStorage.getItem('cartItems');
-      if (localCartItems) {
-        return { items: JSON.parse(localCartItems) }; // Return cart from localStorage
+      // Unauthenticated users: fetch cart from localStorage and get product details
+      const localCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+
+      if (localCartItems.length > 0) {
+        try {
+          // Create a new array to hold the detailed cart items
+          const detailedCartItems = await Promise.all(
+            localCartItems.map(async (cartItem: LocalCartItem) => {
+              // Fetch full product details by product ID using fetchProductById
+              const product = await dispatch(fetchProductById(cartItem.productId)).unwrap();
+
+              // Return a detailed cart item
+              return {
+                productId: cartItem.productId,
+                quantity: cartItem.quantity,
+                name: product.name,
+                price: product.price,
+                image: product.image,
+              };
+            })
+          );
+
+          return { items: detailedCartItems };
+        } catch (err) {
+          const error = err as AxiosError;
+          return rejectWithValue(
+            error.response?.data || 'Something went wrong fetching the cart items'
+          );
+        }
       } else {
-        return { items: [] }; // If no cart in localStorage, return empty cart
+        return { items: [] };
       }
     }
   }
 );
+
 
 // Add item to cart (both localStorage and server)
 export const addItemToCart = createAsyncThunk(
