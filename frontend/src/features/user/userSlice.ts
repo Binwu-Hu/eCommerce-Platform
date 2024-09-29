@@ -40,6 +40,10 @@ export const loginUser = createAsyncThunk(
   ) => {
     try {
       const response = await loginUserApi(data);
+
+      localStorage.setItem('token', response.token);
+      localStorage.setItem('user', JSON.stringify(response.user));
+
       // Sync the guest cart to the server-side cart after login
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'
@@ -63,6 +67,10 @@ export const signupUser = createAsyncThunk(
   ) => {
     try {
       const response = await signupUserApi(data);
+
+      localStorage.setItem('token', response.token); 
+      localStorage.setItem('user', JSON.stringify(response.user)); 
+      
       // Sync the guest cart to the server-side cart after signup
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'

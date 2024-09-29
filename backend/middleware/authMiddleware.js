@@ -1,39 +1,26 @@
-import jwt from 'jsonwebtoken'
-import asyncHandler from './asyncHandler.js'
-import User from '../models/userModel.js'
+import jwt from 'jsonwebtoken';
+import User from '../models/userModel.js';
 
-//verify and get loged in user from req, then add user into req
-const protect = asyncHandler(async (req, res, next) => {
-  let token
+export const authMiddleware = async (req, res, next) => {
+  // console.log('Auth middleware');
+  // console.log('Headers:', req.headers);
+  const token = 
+    req.header('x-auth-token') || req.headers?.authorization?.match(/^Bearer (.+)/)?.[1];
 
-  //read jwt from cookie
-  token = req.cookies.jwt
+  if (!token) {
+    return res.status(401).json({ message: 'No token, authorization denied' });
+  }
 
-  if (token) {
-    try {
-      //get user id from token, add it into req
-      const decoded = jwt.verify(token, process.env.JWT_SECRET)
-      req.user = await User.findById(decoded.userId).select('-password')
-
-      next()
-    } catch (error) {
-      console.log(error)
-      res.status(401)
-      throw new Error('Not authorized, token failed')
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
+    req.user = await User.findById(decoded.id).select('-password'); // Get user data without the password
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not found, authorization denied' });
     }
-  } else {
-    res.status(401)
-    throw new Error('Not authorized, no token')
-  }
-})
 
-const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    next()
-  } else {
-    res.status(401)
-    throw new Error('Not authorized as admin')
+    next(); // Continue to the next middleware/route handler
+  } catch (err) {
+    console.error('Token verification error:', err);
+    res.status(401).json({ message: 'Token is not valid' });
   }
-}
-
-export { protect, admin }
+};

@@ -76,7 +76,17 @@ export const createProduct = createAsyncThunk<
   { rejectValue: string }
 >('products/createProduct', async (productData, { rejectWithValue }) => {
   try {
-    const response = await axios.post('/api/products', productData);
+    const token = localStorage.getItem('token');
+    console.log('Token:', token);
+    console.log('Making POST request to URL:', '/api/products');
+    if (!token) {
+      throw new Error('No token found. Please log in.');
+    }
+    const response = await axios.post('/api/products', productData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (err) {
     const error = err as AxiosError;
@@ -98,7 +108,18 @@ export const updateProduct = createAsyncThunk<
   { rejectValue: string }
 >('products/updateProduct', async ({ id, data }, { rejectWithValue }) => {
   try {
-    const response = await axios.put(`/api/products/${id}`, data);
+    console.log('Making PUT request to URL:', `/api/products/${id}`);
+    console.log('Updating product:', id, data);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found. Please log in.');
+    }
+
+    const response = await axios.put(`/api/products/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (err) {
     const error = err as AxiosError;

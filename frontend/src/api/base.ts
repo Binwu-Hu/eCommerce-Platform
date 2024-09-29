@@ -1,12 +1,20 @@
 const BASE_URL = '/api';
 
 const request = async (url: string, method: string, data?: any) => {
+  const token = localStorage.getItem('token');
+
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    'FRONTEND_URL': window.location.origin,
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const options: RequestInit = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'FRONTEND_URL': window.location.origin,
-    },
+    headers,
   };
 
   if (data) {
