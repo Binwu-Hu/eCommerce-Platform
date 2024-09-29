@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import ProductCard from './ProductCard';
 import SortingOptions from './SortingOptions';
+import { fetchProducts } from '../../features/product/productSlice';
 import { useNavigate } from 'react-router-dom';
 
 const ProductList: React.FC = () => {
@@ -19,7 +20,7 @@ const ProductList: React.FC = () => {
   const [sortOption, setSortOption] = useState('last_added');
 
   useEffect(() => {
-    dispatch({ type: 'products/fetchProducts' });
+    dispatch(fetchProducts());
   }, [dispatch]);
 
   const sortProducts = (option: string) => {
