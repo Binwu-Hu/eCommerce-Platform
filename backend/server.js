@@ -32,7 +32,7 @@ app.use(cors(corsOptionsDelegate));
 
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
-app.use('/api/carts', cartRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Start the Server
 app.listen(port, () => {

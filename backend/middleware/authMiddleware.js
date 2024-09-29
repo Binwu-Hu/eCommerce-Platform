@@ -1,12 +1,12 @@
-import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
+import jwt from 'jsonwebtoken';
 
 export const authMiddleware = async (req, res, next) => {
   // console.log('Auth middleware');
-  // console.log('Headers:', req.headers);
+  console.log('Headers:', req.headers);
   const token = 
     req.header('x-auth-token') || req.headers?.authorization?.match(/^Bearer (.+)/)?.[1];
-
+console.log('token: ', token);
   if (!token) {
     return res.status(401).json({ message: 'No token, authorization denied' });
   }

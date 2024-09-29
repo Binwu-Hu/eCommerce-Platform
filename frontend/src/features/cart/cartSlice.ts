@@ -53,7 +53,6 @@ const calculateTotals = (state: CartState) => {
 };
 
 // Fetch cart details (from server if authenticated, from localStorage if not)
-// Fetch cart details (from server if authenticated, from localStorage if not)
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async (_, { getState, dispatch, rejectWithValue }) => {
@@ -62,13 +61,14 @@ export const fetchCart = createAsyncThunk(
     if (user.isAuthenticated) {
       // Fetch cart from the server for authenticated users
       try {
-        const token = localStorage.getItem('token'); // Get token from localStorage
+        const token = localStorage.getItem('token');
         const response = await axios.get('/api/cart', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        return response.data; // Return cart data from server
+        console.log('cart data: ', response.data);
+        return response.data;
       } catch (err) {
         const error = err as AxiosError;
         return rejectWithValue(
@@ -77,7 +77,9 @@ export const fetchCart = createAsyncThunk(
       }
     } else {
       // Unauthenticated users: fetch cart from localStorage and get product details
-      const localCartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      const localCartItems = JSON.parse(
+        localStorage.getItem('cartItems') || '[]'
+      );
 
       if (localCartItems.length > 0) {
         try {
@@ -85,7 +87,9 @@ export const fetchCart = createAsyncThunk(
           const detailedCartItems = await Promise.all(
             localCartItems.map(async (cartItem: LocalCartItem) => {
               // Fetch full product details by product ID using fetchProductById
-              const product = await dispatch(fetchProductById(cartItem.productId)).unwrap();
+              const product = await dispatch(
+                fetchProductById(cartItem.productId)
+              ).unwrap();
 
               // Return a detailed cart item
               return {
@@ -102,7 +106,8 @@ export const fetchCart = createAsyncThunk(
         } catch (err) {
           const error = err as AxiosError;
           return rejectWithValue(
-            error.response?.data || 'Something went wrong fetching the cart items'
+            error.response?.data ||
+              'Something went wrong fetching the cart items'
           );
         }
       } else {
@@ -111,7 +116,6 @@ export const fetchCart = createAsyncThunk(
     }
   }
 );
-
 
 // Add item to cart (both localStorage and server)
 export const addItemToCart = createAsyncThunk(
@@ -125,10 +129,16 @@ export const addItemToCart = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.post('/api/cart/add', {
-          productId,
-          quantity,
-        });
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+          '/api/cart/add',
+          { productId, quantity },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -152,7 +162,12 @@ export const removeItemFromCart = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.delete(`/api/cart/remove/${productId}`);
+        const token = localStorage.getItem('token');
+        const response = await axios.delete(`/api/cart/remove/${productId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -180,10 +195,19 @@ export const updateCartItemQuantity = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.put('/api/cart/update', {
-          productId,
-          quantity,
-        });
+        const token = localStorage.getItem('token');
+        const response = await axios.put(
+          '/api/cart/update',
+          {
+            productId,
+            quantity,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -208,9 +232,16 @@ export const applyDiscountCode = createAsyncThunk(
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
       try {
-        const response = await axios.post('/api/cart/discount', {
-          discountCode,
-        });
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+          '/api/cart/discount',
+          { discountCode },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -230,9 +261,17 @@ export const syncCart = createAsyncThunk(
   'cart/syncCart',
   async (localCartItems: CartItem[], { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/cart/sync', {
-        items: localCartItems,
-      });
+      const token = localStorage.getItem('token');
+
+      const response = await axios.post(
+        '/api/cart/sync',
+        { items: localCartItems },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       localStorage.removeItem('cartItems'); // Clear localStorage after syncing
       return response.data;
     } catch (err) {

@@ -2,7 +2,7 @@ import Cart from '../models/cartModel.js';
 import Product from '../models/productModel.js';
 
 const isUserLoggedIn = (req) => {
-  return !!req.user; // Check if the user is logged in
+  return !!req.user;
 };
 
 // Add an item to the cart
@@ -22,6 +22,8 @@ export const addItemToCart = async (req, res) => {
     if (!cart) {
       cart = new Cart({ user: userId, items: [], totalPrice: 0 });
     }
+
+    console.log("cart:", cart)
 
     const productInCart = cart.items.find(
       (item) => item.product.toString() === productId
@@ -124,12 +126,10 @@ export const getCart = async (req, res) => {
   try {
     // Unlogged-in users
     if (!isUserLoggedIn(req)) {
-        console.log('userid: ', req.user_id);
       return res.status(200).json({ message: 'Get cart from localStorage' });
     }
 
     // Logged-in users
-    console.log("userid: ", req.user_id)
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId }).populate(
       'items.product',
@@ -137,7 +137,16 @@ export const getCart = async (req, res) => {
     );
 
     if (!cart) {
-      return res.status(404).json({ message: 'Cart not found' });
+      return res.status(200).json({
+        user: userId,
+        items: [],
+        discountCode: null,
+        discountAmount: 0,
+        tax: 0,
+        subTotal: 0,
+        total: 0,
+        createdAt: new Date(),
+      });
     }
 
     cart.subTotal = cart.items.reduce(
