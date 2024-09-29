@@ -25,11 +25,12 @@ interface UserState {
 
 const token = localStorage.getItem('token');
 const initialState: UserState = {
-  user: token ? JSON.parse(localStorage.getItem('user') || '{}') : null, // Load user from localStorage if token exists
-  isAuthenticated: !!token, // Set isAuthenticated to true if a token exists
+  user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null,
+  isAuthenticated: !!token,
   loading: false,
   error: null,
 };
+
 
 export const loginUser = createAsyncThunk(
   'user/login',
@@ -131,7 +132,7 @@ const userSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload.user;
       localStorage.setItem('token', action.payload.token); 
-      localStorage.setItem('user', JSON.stringify(action.payload.user)); 
+      localStorage.setItem('user', JSON.stringify(action.payload)); 
     });
     builder.addCase(loginUser.rejected, (state, action) => {
       state.loading = false;
@@ -147,7 +148,7 @@ const userSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload.user;
       localStorage.setItem('token', action.payload.token); 
-      localStorage.setItem('user', JSON.stringify(action.payload.user));
+      localStorage.setItem('user', JSON.stringify(action.payload));
     });
     builder.addCase(signupUser.rejected, (state, action) => {
       state.loading = false;

@@ -124,10 +124,12 @@ export const getCart = async (req, res) => {
   try {
     // Unlogged-in users
     if (!isUserLoggedIn(req)) {
+        console.log('userid: ', req.user_id);
       return res.status(200).json({ message: 'Get cart from localStorage' });
     }
 
     // Logged-in users
+    console.log("userid: ", req.user_id)
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId }).populate(
       'items.product',

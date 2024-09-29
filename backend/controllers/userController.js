@@ -1,10 +1,10 @@
-import jwt from 'jsonwebtoken';
-import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
-import nodemailer from 'nodemailer'; 
+import asyncHandler from 'express-async-handler';
 import crypto from 'crypto';
-import sgMail from '@sendgrid/mail';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 dotenv.config();
 
 // Generate JWT
@@ -93,12 +93,12 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-    res.status(200).json({ message: 'User logged out successfully' });
-  });
+  res.status(200).json({ message: 'User logged out successfully' });
+});
 
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-  const frontendUrl = req.headers['frontend_url']
+  const frontendUrl = req.headers['frontend_url'];
 
   // Check if user exists with that email
   const user = await User.findOne({ email });
@@ -124,7 +124,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   `;
 
   try {
-    console.log('Sending email to:', user.email); 
+    console.log('Sending email to:', user.email);
     await sgMail.send({
       to: user.email,
       from: 'ecommercemanagementchuwa@gmail.com',
@@ -145,10 +145,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
 // Reset Password
 const resetPassword = asyncHandler(async (req, res) => {
   const { token } = req.params; // Token from URL
-  // console.log('Token received by backend:', token); 
+  // console.log('Token received by backend:', token);
   const { password, email } = req.body; // Password and email from request
-  // console.log('Password received by backend:', password); 
-
+  // console.log('Password received by backend:', password);
 
   // Decode token using hex
   const decodedData = Buffer.from(token, 'hex').toString('utf8'); // Ensure this matches how the token was encoded
@@ -157,7 +156,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   // console.log('Decoded email:', decodedEmail);
   // console.log('Timestamp:', timestamp);
 
-// Find user by email
+  // Find user by email
   const user = await User.findOne({ email: decodedEmail });
 
   if (!user) {
