@@ -6,7 +6,6 @@ import {
   updateCartItemQuantityLocal,
 } from '../../features/cart/cartSlice';
 import { useDispatch, useSelector } from 'react-redux';
-
 import { Button } from 'antd';
 import React from 'react';
 
@@ -14,12 +13,14 @@ interface AddtoCartButtonProps {
   productId: string;
   text: string;
   className?: string;
+  disabled?: boolean;
 }
 
 const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
   productId,
   text,
   className,
+  disabled = false,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { items } = useSelector((state: RootState) => state.cart);
@@ -82,7 +83,13 @@ const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
   return (
     <>
       {quantity === 0 ? (
-        <Button type='primary' className={className} onClick={handleAddToCart}>
+        <Button
+          type='primary'
+          danger={disabled}
+          className={className}
+          onClick={handleAddToCart}
+          disabled={disabled}
+        >
           {text}
         </Button>
       ) : (

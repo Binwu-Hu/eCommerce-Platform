@@ -52,8 +52,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className='flex justify-center space-x-2 mt-4'>
             <AddtoCartButton
               productId={product._id}
-              text='Add'
+              text={product.stock === 0 ? 'Sold out' : 'Add'}
               className='font-semibold text-lg px-8 py-2'
+              disabled={product.stock === 0}
             />
             <ProductEdit
               product={product}

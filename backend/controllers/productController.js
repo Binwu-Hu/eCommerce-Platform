@@ -112,7 +112,7 @@ export const updateProduct = async (req, res) => {
     product.description = description || product.description;
     product.category = category || product.category;
     product.price = price || product.price;
-    product.stockQuantity = stock || product.stockQuantity;
+    product.stock = stock || product.stockQuantity;
     product.image = image || product.image;
 
     // Save the updated product
