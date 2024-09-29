@@ -1,8 +1,13 @@
 import { Button, Form, Input } from 'antd';
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { createProduct, updateProduct } from '../../features/product/productSlice';
+
+interface CreateProductFormProps {
+  product?: Product;
+}
 
 interface Product {
   name: string;
@@ -13,8 +18,12 @@ interface Product {
   image: string;
 }
 
-const CreateProductForm: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>(); // Use AppDispatch for types
+const CreateProductForm: React.FC<CreateProductFormProps> = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const product = location.state?.product;
+
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     description: '',
@@ -24,6 +33,12 @@ const CreateProductForm: React.FC = () => {
     image: '',
   });
 
+  useEffect(() => {
+    if (product) {
+      setFormData(product);
+    }
+  }, [product]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -32,8 +47,21 @@ const CreateProductForm: React.FC = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    dispatch({ type: 'products/createProduct', payload: formData as Product });
+  const handleSubmit = async () => {
+  //   console.log('Form submitted with:', formData);
+    // console.log('Product.id:', product?._id);
+    try {
+      if (product && product._id) {
+        // console.log('Updating product:', product._id, formData);
+        await dispatch(updateProduct({ id: product._id, data: formData }));
+      } else {
+        // console.log('Creating product:', formData);
+        await dispatch(createProduct(formData as Product));
+      }
+      navigate('/');
+    } catch (err) {
+      console.error('Form submission failed:', err);
+    }
   };
 
   return (
@@ -91,7 +119,7 @@ const CreateProductForm: React.FC = () => {
         </Form.Item>
 
         <Button type='primary' htmlType='submit' className='bg-blue-500'>
-          Add Product
+          {product ? 'Update Product' : 'Add Product'}
         </Button>
       </Form>
     </div>

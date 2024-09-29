@@ -33,23 +33,21 @@ export const getProductById = async (req, res) => {
 // @route  POST /api/products
 // @access Private (admin only)
 export const createProduct = async (req, res) => {
+  console.log('Creating product', req.body);
   try {
-    const { name, description, category, price, stock, image, owner } =
-      req.body;
+    const { name, description, category, price, stock, image } = req.body;
 
-    const ownerExists = await User.findById(owner);
-    if (!ownerExists) {
-      return res.status(404).json({ message: 'Owner not found' });
-    }
+    const owner = req.user ? req.user._id : null;
+    console.log('Owner:', owner);
 
     const newProduct = new Product({
       name,
       description,
       category,
       price,
-      stock,
+      stockQuantity: stock,
       image,
-      owner,
+      owner
     });
 
     const createdProduct = await newProduct.save();
@@ -63,35 +61,50 @@ export const createProduct = async (req, res) => {
 // @route  PUT /api/products/:id
 // @access Private (admin only)
 export const updateProduct = async (req, res) => {
+  console.log('Incoming update request for product:', req.params.id);
+  console.log('Request body:', req.body);
+
   try {
     const { name, description, category, price, stock, image } = req.body;
 
+    // Check if all necessary fields are provided in req.body
+    if (!name || !description || !category || price === undefined || stock === undefined || !image) {
+      console.log('Missing fields in request body');
+      return res.status(400).json({ message: 'All fields must be provided: name, description, category, price, stock, image' });
+    }
+
     const product = await Product.findById(req.params.id);
 
-    if (
-      product.owner.toString() !== req.user._id.toString() &&
-      !req.user.isAdmin
-    ) {
-      return res
-        .status(403)
-        .json({ message: 'Not authorized to update this product' });
+    if (!product) {
+      console.log('Product not found for the given ID:', req.params.id);
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    if (product) {
-      product.name = name || product.name;
-      product.description = description || product.description;
-      product.category = category || product.category;
-      product.price = price || product.price;
-      product.stockQuantity = stockQuantity || product.stockQuantity;
-      product.image = image || product.image;
-
-      const updatedProduct = await product.save();
-      res.json(updatedProduct);
-    } else {
-      res.status(404).json({ message: 'Product not found' });
+    // Authorization check - assuming req.user is available and populated
+    if (product.owner.toString() !== req.user?._id.toString() && !req.user?.isAdmin) {
+      console.log('User is not authorized to update this product');
+      return res.status(403).json({ message: 'Not authorized to update this product' });
     }
+
+    // Logging the existing product data before updating
+    console.log('Existing product data:', product);
+
+    // Assigning new values or keeping old ones
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.category = category || product.category;
+    product.price = price || product.price;
+    product.stockQuantity = stock || product.stockQuantity; 
+    product.image = image || product.image;
+
+    // Save the updated product
+    const updatedProduct = await product.save();
+    console.log('Product successfully updated:', updatedProduct);
+
+    res.json(updatedProduct);
   } catch (error) {
-    res.status(400).json({ message: 'Error updating product', error });
+    console.error('Error during product update:', error);
+    res.status(500).json({ message: 'Error updating product', error: error.message });
   }
 };
 

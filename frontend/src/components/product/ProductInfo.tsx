@@ -1,7 +1,7 @@
 import AddtoCartButton from '../cart/AddtoCartButton';
-import { Button } from 'antd';
 import { Product } from '../../features/product/productSlice';
 import React from 'react';
+import ProductEdit from './ProductEdit';
 
 const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
   return (
@@ -20,7 +20,7 @@ const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
 
       <div className='flex space-x-4 mt-6'>
         <AddtoCartButton productId={product._id} text='Add To Cart' />
-        <Button className='h-10 text-lg px-6'>Edit</Button>
+        <ProductEdit product={product} />
       </div>
     </div>
   );

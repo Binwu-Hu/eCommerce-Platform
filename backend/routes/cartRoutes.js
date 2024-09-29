@@ -8,7 +8,7 @@ import {
 } from '../controllers/cartController.js';
 
 import express from 'express';
-import { protect } from '../middleware/authMiddleware.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -28,6 +28,6 @@ router.get('/', getCart);
 router.put('/update', updateCartItemQuantity);
 
 // Sync guest cart with the backend after login (logged-in users)
-router.post('/sync', protect, syncCart);
+router.post('/sync', authMiddleware, syncCart);
 
 export default router;
