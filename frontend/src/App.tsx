@@ -2,12 +2,13 @@ import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 import CreateProduct from './pages/product/createProduct';
 import ForgotPassword from './pages/auth/forgotPassword';
-import Layout from './components/Layout'; // Ensure Layout is correctly imported
+import Layout from './components/Layout';
 import Login from './pages/auth/login';
 import ProductDetail from './pages/product/ProductDetail';
 import ProductList from './components/product/ProductList';
 import ResetPassword from './pages/auth/resetPassword';
 import Signup from './pages/auth/signup';
+import ErrorPage from './pages/error/ErrorPage';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
 
           <Route path='/create-product' element={<CreateProduct />} />
           <Route path='/product/:id' element={<ProductDetail />} />
+          <Route path='/error' element={<ErrorPage />} />
         </Route>
       </Routes>
     </Router>
