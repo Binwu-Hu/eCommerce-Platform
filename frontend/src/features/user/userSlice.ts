@@ -24,12 +24,9 @@ interface UserState {
 }
 
 // Retrieve user and token from localStorage
-// Retrieve user and token from localStorage
 const token = localStorage.getItem('token');
 const storedUser = localStorage.getItem('user');
 
-// Initial state with localStorage rehydration
-const storedUser = localStorage.getItem('user');
 
 // Initial state with localStorage rehydration
 const initialState: UserState = {
@@ -45,7 +42,6 @@ const initialState: UserState = {
 export const loginUser = createAsyncThunk(
   'user/login',
   async (
-    data: { email: string; password: string },
     data: { email: string; password: string },
     { dispatch, rejectWithValue }
   ) => {
@@ -76,7 +72,6 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Async action for signing up the user
 // Async action for signing up the user
 export const signupUser = createAsyncThunk(
   'user/signup',
