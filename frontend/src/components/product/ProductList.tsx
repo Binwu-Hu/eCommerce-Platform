@@ -28,7 +28,7 @@ const ProductList: React.FC = () => {
   // get sorting mode from localStorage
   const getStoredSortOption = () => {
     const storedSort = localStorage.getItem('sortOption');
-    return storedSort || 'last_added';
+    return storedSort || 'id_asc'; // default sort by _id ascending
   };
 
   const [currentPage, setCurrentPage] = useState(getStoredPage());
@@ -61,6 +61,8 @@ const ProductList: React.FC = () => {
       return a.price - b.price;
     } else if (sortOption === 'price_high_to_low') {
       return b.price - a.price;
+    } else if (sortOption === 'id_asc') {
+      return a._id.localeCompare(b._id); 
     } else {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
