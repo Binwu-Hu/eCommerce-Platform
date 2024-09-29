@@ -77,8 +77,6 @@ export const createProduct = createAsyncThunk<
 >('products/createProduct', async (productData, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('token');
-    console.log('Token:', token);
-    console.log('Making POST request to URL:', '/api/products');
     if (!token) {
       throw new Error('No token found. Please log in.');
     }
