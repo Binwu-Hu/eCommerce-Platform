@@ -2,15 +2,21 @@ import { Button, Card } from 'antd';
 
 import { Product } from '../../features/product/productSlice';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const navigate = useNavigate();
+  const handleCardClick = () => {
+    navigate(`/product/${product._id}`);
+  };
   return (
     <Card
       hoverable
+      onClick={handleCardClick}
       cover={
         <img
           alt={product.name}
