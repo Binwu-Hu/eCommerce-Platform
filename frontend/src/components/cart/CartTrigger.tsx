@@ -8,7 +8,10 @@ import { useSelector } from 'react-redux';
 
 const CartTrigger: React.FC = () => {
   const [visible, setVisible] = useState(false);
-  const cartItems = useSelector((state: RootState) => state.cart.items);
+
+  const totalQuantity = useSelector((state: RootState) =>
+    state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  );
 
   const showDrawer = () => {
     setVisible(true);
@@ -20,7 +23,7 @@ const CartTrigger: React.FC = () => {
 
   return (
     <div>
-      <Badge count={cartItems.length} offset={[10, 0]}>
+      <Badge count={totalQuantity} offset={[10, 0]}>
         <ShoppingCartOutlined
           style={{ fontSize: '24px', color: '#fff', cursor: 'pointer' }}
           onClick={showDrawer}
