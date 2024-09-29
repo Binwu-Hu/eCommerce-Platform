@@ -1,6 +1,6 @@
 import { Button, Card } from 'antd';
 
-import { Product } from '../../features/product/productSlice'; // Adjust the import path accordingly
+import { Product } from '../../features/product/productSlice';
 import React from 'react';
 
 interface ProductCardProps {
