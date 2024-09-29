@@ -21,7 +21,7 @@ const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
       <div className='flex space-x-4 mt-6'>
         <AddtoCartButton
           productId={product._id}
-          text={product.stock === 0 ? 'Sold out' : 'Add'}
+          text={product.stock === 0 ? 'Sold out' : 'Add to Cart'}
           disabled={product.stock === 0}
         />
         <ProductEdit product={product} />
