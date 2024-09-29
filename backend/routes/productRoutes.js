@@ -1,24 +1,24 @@
-import express from 'express'
-
+import { admin, protect } from '../middleware/authMiddleware.js';
 import {
-  getProducts,
-  getProductById,
   createProduct,
-  updateProduct,
   deleteProduct,
-} from '../controllers/productController.js'
-import { protect, admin } from '../middleware/authMiddleware.js'
-import checkObjectId from '../middleware/checkObjectId.js'
+  getAllProducts,
+  getProductById,
+  updateProduct,
+} from '../controllers/productController.js';
 
-const router = express.Router()
+import express from 'express';
 
-//need to add protect & admin
-router.route('/').get(getProducts).post(createProduct)
+const router = express.Router();
 
-router
-  .route('/:id')
-  .get(checkObjectId, getProductById)
-  .put(checkObjectId, updateProduct)
-  .delete(protect, admin, checkObjectId, deleteProduct)
+router.get('/', getAllProducts);
 
-export default router
+router.get('/:id', getProductById);
+
+router.post('/', protect, admin, createProduct);
+
+router.put('/:id', protect, admin, updateProduct);
+
+router.delete('/:id', protect, deleteProduct);
+
+export default router;
