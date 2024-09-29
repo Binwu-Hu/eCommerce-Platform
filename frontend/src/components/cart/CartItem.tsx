@@ -6,17 +6,12 @@ import {
 
 import { AppDispatch } from '../../app/store';
 import { Button } from 'antd';
+import { CartItem as Item } from '../../features/cart/cartSlice';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
 interface CartItemProps {
-  item: {
-    productId: string;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-  };
+  item: Item
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
@@ -53,7 +48,6 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
   return (
     <div className='flex justify-between items-center mb-4'>
-      {/* Product Image and Info */}
       <div className='flex items-center space-x-4'>
         <img
           src={item.image}
