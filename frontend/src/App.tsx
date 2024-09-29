@@ -27,11 +27,6 @@ function App() {
           <Route path='/forgot-password' element={<ForgotPassword />} />
           <Route path='/reset-password/:token' element={<ResetPassword />} />
           <Route path='/create-product' element={<CreateProduct />} />
-          {/* <Route path='/' element={<Home />} />
-            <Route path='/product/:id' element={<ProductDetail />} />
-            <Route path='/add-product' element={<ProductForm />} />
-            <Route path='/edit-product/:id' element={<ProductForm />} />
-         */}
         </Route>
       </Routes>
     </Router>

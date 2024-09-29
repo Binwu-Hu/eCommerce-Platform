@@ -1,12 +1,20 @@
 import { Button, Form, Input } from 'antd';
 import React, { useState } from 'react';
 
-import { Product } from '../../features/product/productSlice';
-import { createProduct } from '../../features/products/productSlice';
+import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
 
+interface Product {
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  stock: number;
+  image: string;
+}
+
 const CreateProductForm: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>(); // Use AppDispatch for types
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
     description: '',
@@ -25,7 +33,7 @@ const CreateProductForm: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    dispatch(createProduct(formData as Product));
+    dispatch({ type: 'products/createProduct', payload: formData as Product });
   };
 
   return (
