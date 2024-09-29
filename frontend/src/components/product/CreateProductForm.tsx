@@ -3,7 +3,10 @@ import React, { useState, useEffect } from 'react';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { createProduct, updateProduct } from '../../features/product/productSlice';
+import {
+  createProduct,
+  updateProduct,
+} from '../../features/product/productSlice';
 
 interface CreateProductFormProps {
   product?: Product;
@@ -32,6 +35,17 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
     stock: 0,
     image: '',
   });
+
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+  useEffect(() => {
+    const isFormIncomplete =
+      !formData.name ||
+      !formData.description ||
+      !formData.category ||
+      !formData.image;
+    setIsButtonDisabled(isFormIncomplete);
+  }, [formData]);
 
   useEffect(() => {
     if (product) {
@@ -62,7 +76,7 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
 
   return (
     <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md'>
-      <h2 className="text-2xl font-bold mb-6 text-center">
+      <h2 className='text-2xl font-bold mb-6 text-center'>
         {product ? 'Update Product' : 'Create New Product'}
       </h2>
 
@@ -97,7 +111,7 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
           />
         </Form.Item>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className='grid grid-cols-2 gap-4'>
           <Form.Item label='Price' required>
             <Input
               name='price'
@@ -131,11 +145,16 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
           />
         </Form.Item>
 
-        <div className="text-center mt-6">
-          <Button 
-            type='primary' 
-            htmlType='submit' 
-            className='w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg'
+        <div className='text-center mt-6'>
+          <Button
+            type='primary'
+            htmlType='submit'
+            className={`w-full py-2 rounded-lg text-white ${
+              isButtonDisabled
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+            disabled={isButtonDisabled}
           >
             {product ? 'Update Product' : 'Add Product'}
           </Button>
