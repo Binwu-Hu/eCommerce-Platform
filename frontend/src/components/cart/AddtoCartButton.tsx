@@ -1,64 +1,92 @@
-import React, { useState } from 'react'
+import { AppDispatch, RootState } from '../../app/store';
 import {
   addItemToCart,
   removeItemFromCart,
+  updateCartItemQuantity,
   updateCartItemQuantityLocal,
-} from '../../features/cart/cartSlice'
+} from '../../features/cart/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { AppDispatch } from '../../app/store'
-import { Button } from 'antd'
-import { useDispatch } from 'react-redux'
+import { Button } from 'antd';
+import React from 'react';
 
-interface CartActionsProps {
-  productId: string
-  text: string
-  className?: string
+interface AddtoCartButtonProps {
+  productId: string;
+  text: string;
+  className?:string
 }
 
-const CartActions: React.FC<CartActionsProps> = ({
+const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
   productId,
   text,
-  className,
+  className
 }) => {
-  const dispatch = useDispatch<AppDispatch>()
-  const [quantity, setQuantity] = useState<number>(0)
+  const dispatch = useDispatch<AppDispatch>();
+  const { items } = useSelector((state: RootState) => state.cart);
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+
+  // Find the item in the cart (either Redux store or localStorage)
+  const cartItem = items.find((item) => item.productId === productId);
+  const quantity = cartItem ? cartItem.quantity : 0;
 
   const handleAddToCart = () => {
     if (quantity === 0) {
-      setQuantity(1)
-      dispatch(addItemToCart({ productId, quantity: 1 }))
+      dispatch(addItemToCart({ productId, quantity: 1 }));
     }
-  }
+  };
 
   const handleIncrement = () => {
-    setQuantity((prevQuantity) => prevQuantity + 1)
-    dispatch(
-      updateCartItemQuantityLocal({
-        productId,
-        quantity: quantity + 1,
-      })
-    )
-  }
-
-  const handleDecrement = () => {
-    if (quantity === 1) {
-      setQuantity(0)
-      dispatch(removeItemFromCart(productId))
-    } else if (quantity > 1) {
-      setQuantity((prevQuantity) => prevQuantity - 1)
+    if (isAuthenticated) {
+      // For logged-in users, update the cart on the server
+      dispatch(
+        updateCartItemQuantity({
+          productId,
+          quantity: quantity + 1,
+        })
+      );
+    } else {
+      // For unauthenticated users, update the local storage cart
       dispatch(
         updateCartItemQuantityLocal({
           productId,
-          quantity: quantity - 1,
+          quantity: quantity + 1,
         })
-      )
+      );
     }
-  }
+  };
+
+  const handleDecrement = () => {
+    if (quantity === 1) {
+      dispatch(removeItemFromCart(productId));
+    } else if (quantity > 1) {
+      if (isAuthenticated) {
+        // For logged-in users, update the cart on the server
+        dispatch(
+          updateCartItemQuantity({
+            productId,
+            quantity: quantity - 1,
+          })
+        );
+      } else {
+        // For unauthenticated users, update the local storage cart
+        dispatch(
+          updateCartItemQuantityLocal({
+            productId,
+            quantity: quantity - 1,
+          })
+        );
+      }
+    }
+  };
 
   return (
     <>
       {quantity === 0 ? (
-        <Button type='primary' className={className} onClick={handleAddToCart}>
+        <Button
+          type='primary'
+          className={className}
+          onClick={handleAddToCart}
+        >
           {text}
         </Button>
       ) : (
@@ -69,7 +97,7 @@ const CartActions: React.FC<CartActionsProps> = ({
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
-export default CartActions
+export default AddtoCartButton;

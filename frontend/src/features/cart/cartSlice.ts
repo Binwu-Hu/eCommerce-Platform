@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
+import { AppDispatch } from '../../app/store';
 import { fetchProductById } from '../product/productSlice';
 
 export interface CartItem {
@@ -11,7 +12,7 @@ export interface CartItem {
   image: string;
 }
 
-interface LocalCartItem {
+interface SimplifiedCartItem {
   productId: string;
   quantity: number;
 }
@@ -52,6 +53,32 @@ const calculateTotals = (state: CartState) => {
   state.total = state.subTotal + state.tax - state.discountAmount;
 };
 
+const convertToDetailedCartItems = async (
+  cartItems: SimplifiedCartItem[],
+  dispatch: AppDispatch
+): Promise<CartItem[]> => {
+  try {
+    const detailedCartItems = await Promise.all(
+      cartItems.map(async (cartItem: SimplifiedCartItem) => {
+        const product = await dispatch(
+          fetchProductById(cartItem.productId)
+        ).unwrap();
+        return {
+          productId: cartItem.productId,
+          quantity: cartItem.quantity,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        };
+      })
+    );
+    return detailedCartItems;
+  } catch (err) {
+    console.log(err);
+    throw new Error('Something went wrong fetching the cart items');
+  }
+};
+
 // Fetch cart details (from server if authenticated, from localStorage if not)
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
@@ -67,7 +94,6 @@ export const fetchCart = createAsyncThunk(
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('cart data: ', response.data);
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -84,22 +110,9 @@ export const fetchCart = createAsyncThunk(
       if (localCartItems.length > 0) {
         try {
           // Create a new array to hold the detailed cart items
-          const detailedCartItems = await Promise.all(
-            localCartItems.map(async (cartItem: LocalCartItem) => {
-              // Fetch full product details by product ID using fetchProductById
-              const product = await dispatch(
-                fetchProductById(cartItem.productId)
-              ).unwrap();
-
-              // Return a detailed cart item
-              return {
-                productId: cartItem.productId,
-                quantity: cartItem.quantity,
-                name: product.name,
-                price: product.price,
-                image: product.image,
-              };
-            })
+          const detailedCartItems = await convertToDetailedCartItems(
+            localCartItems,
+            dispatch as AppDispatch
           );
 
           return { items: detailedCartItems };
@@ -139,6 +152,7 @@ export const addItemToCart = createAsyncThunk(
             },
           }
         );
+        console.log("here: ", response.data)
         return response.data;
       } catch (err) {
         const error = err as AxiosError;

@@ -25,11 +25,12 @@ const ProductEdit: React.FC<ProductEditProps> = ({ product, className }) => {
     navigate('/create-product', { state: { product } })
   }
 
-  return (
+  return product.owner === currentUser?.id ? (
     <Button type='default' onClick={handleEditClick} className={className}>
       Edit
     </Button>
-  )
-}
+  ):null;
+  
+};
 
-export default ProductEdit
+export default ProductEdit;

@@ -5,25 +5,54 @@ const isUserLoggedIn = (req) => {
   return !!req.user;
 };
 
+const formatCartResponse = (cart) => {
+  cart.subTotal = cart.items.reduce(
+    (acc, item) => acc + item.quantity * item.product.price,
+    0
+  );
+  cart.tax = (cart.subTotal * 0.1).toFixed(2);
+  cart.total = (
+    cart.subTotal +
+    parseFloat(cart.tax) -
+    cart.discountAmount
+  ).toFixed(2);
+
+  // Format the cart items
+  const formattedCartItems = cart.items.map((item) => ({
+    productId: item.product._id,
+    name: item.product.name,
+    price: item.product.price,
+    quantity: item.quantity,
+    image: item.product.image,
+  }));
+
+  return {
+    user: cart.user._id,
+    items: formattedCartItems,
+    discountCode: cart.discountCode || null,
+    discountAmount: cart.discountAmount || 0,
+    tax: cart.tax,
+    subTotal: cart.subTotal,
+    total: cart.total,
+    createdAt: cart.createdAt,
+  };
+};
+
 // Add an item to the cart
 export const addItemToCart = async (req, res) => {
   const { productId, quantity } = req.body;
 
   try {
-    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res.status(200).json({ message: 'Store this in localStorage' });
     }
 
-    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
       cart = new Cart({ user: userId, items: [], totalPrice: 0 });
     }
-
-    console.log("cart:", cart)
 
     const productInCart = cart.items.find(
       (item) => item.product.toString() === productId
@@ -34,7 +63,6 @@ export const addItemToCart = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Check if the requested quantity exceeds the stock
     if (
       product.stock <
       quantity + (productInCart ? productInCart.quantity : 0)
@@ -43,21 +71,26 @@ export const addItemToCart = async (req, res) => {
     }
 
     if (productInCart) {
-      // If product already in cart, update the quantity
       productInCart.quantity += quantity;
     } else {
-      // Otherwise, add the new product to the cart
-      const newCartItem = {
+      cart.items.push({
         product: product._id,
         quantity: quantity,
-      };
-      cart.items.push(newCartItem);
+      });
     }
 
     await cart.save();
-    res.status(200).json(cart);
+    cart = await Cart.findOne({ user: userId }).populate(
+      'items.product',
+      'name price image'
+    );
+
+    const formattedCart = formatCartResponse(cart);
+    return res.status(200).json(formattedCart);
   } catch (error) {
-    res.status(500).json({ message: 'Error adding item to cart', error });
+    return res
+      .status(500)
+      .json({ message: 'Error adding item to cart', error });
   }
 };
 
@@ -84,9 +117,17 @@ export const removeItemFromCart = async (req, res) => {
     );
 
     await cart.save();
-    res.status(200).json(cart);
+    cart = await Cart.findOne({ user: userId }).populate(
+      'items.product',
+      'name price image'
+    );
+
+    const formattedCart = formatCartResponse(cart);
+    return res.status(200).json(formattedCart);
   } catch (error) {
-    res.status(500).json({ message: 'Error removing item from cart', error });
+    return res
+      .status(500)
+      .json({ message: 'Error removing item from cart', error });
   }
 };
 
@@ -115,21 +156,27 @@ export const applyDiscountCode = async (req, res) => {
     }
 
     await cart.save();
-    res.status(200).json(cart);
+    cart = await Cart.findOne({ user: userId }).populate(
+      'items.product',
+      'name price image'
+    );
+
+    const formattedCart = formatCartResponse(cart);
+    return res.status(200).json(formattedCart);
   } catch (error) {
-    res.status(500).json({ message: 'Error applying discount code', error });
+    return res
+      .status(500)
+      .json({ message: 'Error applying discount code', error });
   }
 };
 
 // Get cart details
 export const getCart = async (req, res) => {
   try {
-    // Unlogged-in users
     if (!isUserLoggedIn(req)) {
       return res.status(200).json({ message: 'Get cart from localStorage' });
     }
 
-    // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId }).populate(
       'items.product',
@@ -149,20 +196,12 @@ export const getCart = async (req, res) => {
       });
     }
 
-    cart.subTotal = cart.items.reduce(
-      (acc, item) => acc + item.quantity * item.product.price,
-      0
-    );
-    cart.tax = (cart.subTotal * 0.1).toFixed(2);
-    cart.total = (
-      cart.subTotal +
-      parseFloat(cart.tax) -
-      cart.discountAmount
-    ).toFixed(2);
-
-    res.status(200).json(cart);
+    const formattedCart = formatCartResponse(cart);
+    return res.status(200).json(formattedCart);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching cart details', error });
+    return res
+      .status(500)
+      .json({ message: 'Error fetching cart details', error });
   }
 };
 
@@ -203,7 +242,14 @@ export const updateCartItemQuantity = async (req, res) => {
     if (productInCart) {
       productInCart.quantity = quantity;
       await cart.save();
-      return res.status(200).json(cart);
+      cart = await Cart.findOne({ user: userId }).populate(
+        'items.product',
+        'name price image'
+      );
+
+      const formattedCart = formatCartResponse(cart);
+      console.log('cart after update: ', cart);
+      return res.status(200).json(formattedCart);
     }
 
     return res.status(404).json({ message: 'Product not found in cart' });
@@ -273,8 +319,14 @@ export const syncCart = async (req, res) => {
     }
 
     await cart.save();
-    res.status(200).json(cart);
+    cart = await Cart.findOne({ user: userId }).populate(
+      'items.product',
+      'name price image'
+    );
+
+    const formattedCart = formatCartResponse(cart);
+    return res.status(200).json(formattedCart);
   } catch (error) {
-    res.status(500).json({ message: 'Error syncing cart', error });
+    return res.status(500).json({ message: 'Error syncing cart', error });
   }
 };

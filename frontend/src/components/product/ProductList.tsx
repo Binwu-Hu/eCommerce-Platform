@@ -15,6 +15,8 @@ const ProductList: React.FC = () => {
     (state: RootState) => state.products
   )
 
+  const isAdmin = useSelector((state: RootState) => state.user?.user?.isAdmin);
+
   // Pagination and sorting states
   const [currentPage, setCurrentPage] = useState(1)
   const [sortOption, setSortOption] = useState('last_added')
@@ -53,13 +55,15 @@ const ProductList: React.FC = () => {
         <h2 className='text-2xl font-semibold'>Products</h2>
         <div className='flex items-center space-x-4'>
           <SortingOptions sortOption={sortOption} onSortChange={sortProducts} />
-          <Button
-            type='primary'
-            onClick={handleAddProduct}
-            className='bg-blue-500'
-          >
-            Add Product
-          </Button>
+          {isAdmin && (
+            <Button
+              type='primary'
+              onClick={handleAddProduct}
+              className='bg-blue-500'
+            >
+              Add Product
+            </Button>
+          )}
         </div>
       </div>
 
