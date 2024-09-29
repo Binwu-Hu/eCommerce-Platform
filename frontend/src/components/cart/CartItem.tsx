@@ -1,17 +1,73 @@
+import { AppDispatch, RootState } from '../../app/store';
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  removeItemFromCart,
+  updateCartItemQuantity,
+  updateCartItemQuantityLocal,
+} from '../../features/cart/cartSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Button } from 'antd';
 import { CartItem as Item } from '../../features/cart/cartSlice';
 import React from 'react';
-import { useCartQuantityHandler } from './useCartQuantityHandler';
 
 interface CartItemProps {
   item: Item;
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { handleIncrement, handleRemoveFromCart, handleDecrement } =
-    useCartQuantityHandler(item.productId);
+  const dispatch = useDispatch<AppDispatch>();
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+
+  // Handle quantity decrease
+  const handleDecrement = () => {
+    if (item.quantity === 1) {
+      handleRemove();
+    } else if (item.quantity > 1) {
+      if (isAuthenticated) {
+        // For logged-in users, update the cart on the server
+        dispatch(
+          updateCartItemQuantity({
+            productId: item.productId,
+            quantity: item.quantity - 1,
+          })
+        );
+      } else {
+        // For unauthenticated users, update the local storage cart
+        dispatch(
+          updateCartItemQuantityLocal({
+            productId: item.productId,
+            quantity: item.quantity - 1,
+          })
+        );
+      }
+    }
+  };
+
+  const handleIncrement = () => {
+    if (isAuthenticated) {
+      // For logged-in users, update the cart on the server
+      dispatch(
+        updateCartItemQuantity({
+          productId: item.productId,
+          quantity: item.quantity + 1,
+        })
+      );
+    } else {
+      // For unauthenticated users, update the local storage cart
+      dispatch(
+        updateCartItemQuantityLocal({
+          productId: item.productId,
+          quantity: item.quantity + 1,
+        })
+      );
+    }
+  };
+
+  // Handle removing an item from the cart
+  const handleRemove = () => {
+    dispatch(removeItemFromCart(item.productId));
+  };
 
   return (
     <div className='flex justify-between items-center mb-4'>
@@ -23,7 +79,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         />
         <div>
           <p className='font-semibold'>{item.name}</p>
-          <p className='text-blue-500'>{`$${item.price}`}</p>
+          <p className='text-blue-500'>{item.price}</p>
         </div>
       </div>
 
@@ -32,7 +88,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         <Button
           icon={<MinusOutlined />}
           onClick={handleDecrement}
-          disabled={item.quantity === 1}
+          disabled={item.quantity === 1} // Disable if quantity is 1 (use remove instead)
         />
         <span>{item.quantity}</span>
         <Button icon={<PlusOutlined />} onClick={handleIncrement} />
@@ -43,7 +99,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
         type='text'
         className='text-red-500'
         icon={<DeleteOutlined />}
-        onClick={() => handleRemoveFromCart(item.productId)}
+        onClick={handleRemove}
       >
         Remove
       </Button>
