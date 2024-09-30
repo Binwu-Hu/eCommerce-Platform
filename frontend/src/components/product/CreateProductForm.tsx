@@ -38,6 +38,7 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const isFormIncomplete =
@@ -68,6 +69,8 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
+    setImageError(false);
+
     setFormData((prevData) => ({
       ...prevData,
       image: value,
@@ -81,6 +84,11 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
       message.error('Please enter a valid image URL');
       setImagePreview(null);
     }
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImagePreview(null);
   };
 
   const handleSubmit = async () => {
@@ -167,15 +175,18 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
           />
         </Form.Item>
         
-        {imagePreview && (
-          <div className='mb-6'>
+        <div className="border-2 border-dashed border-gray-300 p-6 my-6 flex justify-center items-center h-40">
+          {imagePreview && !imageError ? (
             <img
               src={imagePreview}
               alt='Image Preview'
-              className='w-32 h-32 object-cover rounded-lg'
+              onError={handleImageError}
+              className="max-w-full max-h-full object-contain"
             />
-          </div>
-        )}
+          ) : (
+            <span className="text-gray-400">Image Preview</span>
+          )}
+        </div>
 
         <div className='text-center mt-6'>
           <Button
