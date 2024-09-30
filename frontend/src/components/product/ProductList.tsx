@@ -114,9 +114,9 @@ const ProductList: React.FC = () => {
 
   return (
     <div className='container mx-auto py-8 px-4'>
-      <div className='flex justify-between items-center'>
-        <h2 className='text-2xl font-semibold'>Products</h2>
-        <div className='flex items-center space-x-4'>
+      <h2 className='text-2xl font-semibold'>Products</h2>
+      <div className='flex justify-end'>
+        <div className='flex items-center space-x-4 sm:space-x-2'>
           {isAdmin && (
             <Checkbox
               checked={showOwnedProducts}
@@ -150,11 +150,31 @@ const ProductList: React.FC = () => {
         </div>
       </div>
 
-      <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-6'>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mt-6 custom-grid'>
         {paginatedProducts.map((product) => (
           <ProductCard key={product._id} product={product} />
         ))}
       </div>
+
+      <style jsx>{`
+        @media (min-width: 1025px) and (max-width: 1268px) {
+          .custom-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+        }
+
+        @media (min-width: 765px) and (max-width: 1024px) {
+          .custom-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+        }
+
+        @media (max-width: 764px) {
+          .custom-grid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+          }
+        }
+      `}</style>
 
       <div className='flex justify-center mt-6'>
         <Pagination
