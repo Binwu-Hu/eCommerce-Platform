@@ -13,6 +13,14 @@ const CartTrigger: React.FC = () => {
     state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
   );
 
+  const { subTotal, tax, discountAmount } = useSelector((state: RootState) => ({
+    subTotal: state.cart.subTotal,
+    tax: state.cart.tax,
+    discountAmount: state.cart.discountAmount,
+  }));
+
+  const totalAmount = subTotal + tax - discountAmount;
+
   const showDrawer = () => {
     setVisible(true);
   };
@@ -23,12 +31,22 @@ const CartTrigger: React.FC = () => {
 
   return (
     <div>
-      <Badge count={totalQuantity} offset={[10, 0]}>
-        <ShoppingCartOutlined
-          style={{ fontSize: '24px', color: '#fff', cursor: 'pointer' }}
-          onClick={showDrawer}
-        />
-      </Badge>
+      <div
+        className='flex items-center space-x-4 cursor-pointer'
+        onClick={showDrawer}
+        style={{ color: 'white' }}
+      >
+        <Badge
+          count={totalQuantity}
+          offset={[12, -6]}
+          style={{ transform: 'scale(0.8)' }}
+        >
+          <ShoppingCartOutlined style={{ fontSize: '25px', color: 'white' }} />
+        </Badge>
+        <span className='hover:text-yellow-500'>
+          {`$${totalAmount.toFixed(2)}`}
+        </span>
+      </div>
       <CartDrawer visible={visible} onClose={closeDrawer} />
     </div>
   );

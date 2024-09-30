@@ -5,8 +5,8 @@ import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 
 import CartTrigger from '../cart/CartTrigger';
-import { logout } from '../../features/user/userSlice';
 import SearchBox from '../product/SearchBox';
+import { logout } from '../../features/user/userSlice';
 
 const { Header } = Layout;
 
@@ -87,8 +87,10 @@ const MergedHeader = () => {
               </Menu.Item>
             )}
 
-            <Menu.Item key='2'>
-              <CartTrigger />
+            <Menu.Item key='2' style={{ backgroundColor: 'transparent' }}>
+              <div className='flex items-center space-x-2'>
+                <CartTrigger />
+              </div>
             </Menu.Item>
           </Menu>
         </div>
