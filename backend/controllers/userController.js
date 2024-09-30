@@ -123,7 +123,6 @@ const forgotPassword = asyncHandler(async (req, res) => {
   `;
 
   try {
-    console.log('Sending email to:', user.email);
     await sgMail.send({
       to: user.email,
       from: 'ecommercemanagementchuwa@gmail.com',
@@ -144,16 +143,11 @@ const forgotPassword = asyncHandler(async (req, res) => {
 // Reset Password
 const resetPassword = asyncHandler(async (req, res) => {
   const { token } = req.params; // Token from URL
-  // console.log('Token received by backend:', token);
   const { password, email } = req.body; // Password and email from request
-  // console.log('Password received by backend:', password);
 
   // Decode token using hex
   const decodedData = Buffer.from(token, 'hex').toString('utf8'); // Ensure this matches how the token was encoded
   const [decodedEmail, timestamp] = decodedData.split(':'); // Split the email and timestamp
-
-  // console.log('Decoded email:', decodedEmail);
-  // console.log('Timestamp:', timestamp);
 
   // Find user by email
   const user = await User.findOne({ email: decodedEmail });
