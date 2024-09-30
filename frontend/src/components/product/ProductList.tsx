@@ -35,19 +35,60 @@ const ProductList: React.FC = () => {
     return storedSort || 'id_asc'; // default sort by _id ascending
   };
 
+  // get filter state from localStorage
+  const getStoredShowOwnedProducts = () => {
+    const storedOwned = localStorage.getItem('showOwnedProducts');
+    return storedOwned === 'true';
+  };
+
+  const getStoredShowInStockProducts = () => {
+    const storedInStock = localStorage.getItem('showInStockProducts');
+    return storedInStock === 'true';
+  };
+
   const [currentPage, setCurrentPage] = useState(getStoredPage());
   const [sortOption, setSortOption] = useState(getStoredSortOption());
-  const [showOwnedProducts, setShowOwnedProducts] = useState(false); // for "Show Only My Products"
-  const [showInStockProducts, setShowInStockProducts] = useState(false); // for "In Stock Products"
+
+  const [showOwnedProducts, setShowOwnedProducts] = useState(
+    getStoredShowOwnedProducts()
+  );
+  const [showInStockProducts, setShowInStockProducts] = useState(
+    getStoredShowInStockProducts()
+  );
+
   const pageSize = 8;
 
+  // Fetch products on component mount and when keyword changes
   useEffect(() => {
     dispatch(fetchProducts(keyword));
   }, [dispatch, keyword]);
 
+  // Fetch cart when authenticated changes
   useEffect(() => {
     dispatch(fetchCart());
   }, [dispatch, isAuthenticated]);
+
+  useEffect(() => {
+    const filteredProducts = products.filter((product) => {
+      let matchesOwner = true;
+      let inStock = true;
+
+      if (showOwnedProducts) {
+        matchesOwner = product.owner === user?.id;
+      }
+
+      if (showInStockProducts) {
+        inStock = product.stock !== 0;
+      }
+
+      return matchesOwner && inStock;
+    });
+
+    // reset to page 1 if current page is larger than filted total pages
+    if ((currentPage - 1) * pageSize >= filteredProducts.length) {
+      setCurrentPage(1);
+    }
+  }, [showOwnedProducts, showInStockProducts, products, currentPage, user?.id]);
 
   // store currentPage
   const handlePageChange = (page: number) => {
@@ -63,6 +104,19 @@ const ProductList: React.FC = () => {
 
   const handleAddProduct = () => {
     navigate('/create-product');
+  };
+
+  // store filters into localStorage
+  const handleOwnedProductsChange = (checked: boolean) => {
+    setShowOwnedProducts(checked);
+    localStorage.setItem('showOwnedProducts', String(checked));
+    setCurrentPage(1);
+  };
+
+  const handleInStockProductsChange = (checked: boolean) => {
+    setShowInStockProducts(checked);
+    localStorage.setItem('showInStockProducts', String(checked));
+    setCurrentPage(1);
   };
 
   // Filter products based on the two checkboxes
@@ -120,20 +174,14 @@ const ProductList: React.FC = () => {
           {isAdmin && (
             <Checkbox
               checked={showOwnedProducts}
-              onChange={(e) => {
-                setShowOwnedProducts(e.target.checked);
-                setCurrentPage(1); // Reset page to 1 when filter changes
-              }}
+              onChange={(e) => handleOwnedProductsChange(e.target.checked)}
             >
               Show Only My Products
             </Checkbox>
           )}
           <Checkbox
             checked={showInStockProducts}
-            onChange={(e) => {
-              setShowInStockProducts(e.target.checked);
-              setCurrentPage(1); // Reset page to 1 when filter changes
-            }}
+            onChange={(e) => handleInStockProductsChange(e.target.checked)}
           >
             In Stock Products
           </Checkbox>
