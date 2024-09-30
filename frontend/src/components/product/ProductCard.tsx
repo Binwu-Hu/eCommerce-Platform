@@ -23,7 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <img
           alt={product.name}
           src={product.image}
-          className='h-49 object-cover'
+          style={{ height: '18rem', width: '100%', objectFit: 'fill' }}
           onClick={handleCardClick}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
@@ -34,7 +34,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     >
       <div className='flex flex-col justify-between h-full text-center'>
         <div className='flex flex-col justify-between flex-grow mb-4'>
-          <h3 className='font-semibold text-lg'>{product.name}</h3>
+          <h3
+            className='font-semibold text-lg'
+            style={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {product.name}
+          </h3>
           <p
             style={{
               display: 'block',

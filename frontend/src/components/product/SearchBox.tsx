@@ -11,7 +11,7 @@ const SearchBox: React.FC = () => {
   const submitHandler = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (keyword.trim()) {
-      setKeyword('');
+      // setKeyword('');
       navigate(`/search/${keyword}`);
     } else {
       navigate(`/`);
