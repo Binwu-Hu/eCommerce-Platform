@@ -9,6 +9,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import CartItem from './CartItem';
+import { useMediaQuery } from 'react-responsive';
 
 interface CartDrawerProps {
   visible: boolean;
@@ -25,8 +26,16 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
   const [discountCodeInput, setDiscountCodeInput] = useState<string>('');
 
   // Accessing the cart state from the Redux store
-  const { items, subTotal, tax, discountAmount, total, loading, discountCode, error } =
-    useSelector((state: RootState) => state.cart);
+  const {
+    items,
+    subTotal,
+    tax,
+    discountAmount,
+    total,
+    loading,
+    discountCode,
+    error,
+  } = useSelector((state: RootState) => state.cart);
 
   // Fetch the cart items once the drawer is opened
   useEffect(() => {
@@ -74,16 +83,21 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
     state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
   );
 
+  // Use media query to detect mobile screen size
+  const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
+
   return (
     <Drawer
       title={
         <span className='text-2xl font-bold'>{`Cart (${totalQuantity})`}</span>
       }
-      placement='right'
+      placement={isMobile ? 'top' : 'right'}
       onClose={onClose}
       visible={visible}
-      width={600}
+      width={isMobile ? '100%' : 600}
+      height={isMobile ? '100vh' : 'auto'}
       className='bg-gray-100'
+      bodyStyle={isMobile ? { paddingBottom: '10px', height: '100%' } : {}}
     >
       {loading ? (
         <div className='flex justify-center items-center h-full'>
