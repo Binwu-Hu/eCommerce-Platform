@@ -51,6 +51,9 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
   useEffect(() => {
     if (product) {
       setFormData(product);
+      if (product.image && validateImageUrl(product.image)) {
+        setImagePreview(product.image);
+      }
     }
   }, [product]);
 
