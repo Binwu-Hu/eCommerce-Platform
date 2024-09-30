@@ -6,6 +6,7 @@ import AddtoCartButton from '../cart/AddtoCartButton';
 import { Product } from '../../features/product/productSlice';
 import ProductEdit from './ProductEdit';
 import { fetchCart } from '../../features/cart/cartSlice';
+import ProductDelete from './ProductDelete';
 
 const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,6 +39,7 @@ const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
           disabled={product.stock === 0}
         />
         <ProductEdit product={product} />
+        <ProductDelete product={product} />
       </div>
     </div>
   );

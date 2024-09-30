@@ -8,7 +8,10 @@ const storage = multer.diskStorage({
     cb(null, 'data/uploads/'); // Folder to store uploaded files
   },
   filename: (req, file, cb) => {
-    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); // File naming
+    cb(
+      null,
+      `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
+    ); // File naming
   },
 });
 
@@ -107,10 +110,17 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { name, description, category, price, stock, image } = req.body;
-    
-    if (!name || !description || !category || price === undefined || stock === undefined) {
+
+    if (
+      !name ||
+      !description ||
+      !category ||
+      price === undefined ||
+      stock === undefined
+    ) {
       return res.status(400).json({
-        message: 'All fields must be provided: name, description, category, price, stock, image',
+        message:
+          'All fields must be provided: name, description, category, price, stock, image',
       });
     }
 
@@ -121,8 +131,13 @@ export const updateProduct = async (req, res) => {
     }
 
     // Authorization check
-    if (product.owner.toString() !== req.user?._id.toString() && !req.user?.isAdmin) {
-      return res.status(403).json({ message: 'Not authorized to update this product' });
+    if (
+      product.owner.toString() !== req.user?._id.toString() &&
+      !req.user?.isAdmin
+    ) {
+      return res
+        .status(403)
+        .json({ message: 'Not authorized to update this product' });
     }
 
     product.name = name || product.name;
@@ -135,7 +150,9 @@ export const updateProduct = async (req, res) => {
     const updatedProduct = await product.save();
     res.json(updatedProduct);
   } catch (error) {
-    res.status(500).json({ message: 'Error updating product', error: error.message });
+    res
+      .status(500)
+      .json({ message: 'Error updating product', error: error.message });
   }
 };
 
@@ -156,7 +173,8 @@ export const deleteProduct = async (req, res) => {
         .json({ message: 'Not authorized to delete this product' });
     }
 
-    await product.remove();
+    await Product.deleteOne({ _id: product._id });
+    // await product.remove();
     res.json({ message: 'Product removed successfully' });
   } catch (error) {
     res

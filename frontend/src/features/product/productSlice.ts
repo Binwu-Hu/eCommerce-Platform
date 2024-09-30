@@ -1,8 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-
-
 export interface Product {
   _id: string;
   name: string;
@@ -34,7 +32,6 @@ export const fetchProducts = createAsyncThunk<
   { rejectValue: string }
 >('products/fetchProducts', async (keyword, { rejectWithValue }) => {
   try {
-    
     const response = await axios.get('/api/products', {
       params: {
         search: keyword || '',
@@ -167,7 +164,12 @@ export const deleteProduct = createAsyncThunk<
   { rejectValue: string }
 >('products/deleteProduct', async (id, { rejectWithValue }) => {
   try {
-    await axios.delete(`/api/products/${id}`);
+    const token = localStorage.getItem('token');
+    await axios.delete(`/api/products/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return id;
   } catch (err) {
     const error = err as AxiosError;
