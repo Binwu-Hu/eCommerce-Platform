@@ -6,12 +6,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import ProductCard from './ProductCard';
 import SortingOptions from './SortingOptions';
+import { fetchCart } from '../../features/cart/cartSlice';
 import { fetchProducts } from '../../features/product/productSlice';
 
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { keyword } = useParams();
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
 
   const { products, loading, error } = useSelector(
     (state: RootState) => state.products
@@ -39,6 +41,10 @@ const ProductList: React.FC = () => {
     dispatch(fetchProducts(keyword));
   }, [dispatch, keyword]);
 
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch, isAuthenticated]);
+
   // store currentPage
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -62,7 +68,7 @@ const ProductList: React.FC = () => {
     } else if (sortOption === 'price_high_to_low') {
       return b.price - a.price;
     } else if (sortOption === 'id_asc') {
-      return a._id.localeCompare(b._id); 
+      return a._id.localeCompare(b._id);
     } else {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     }
