@@ -63,20 +63,16 @@ export const createProduct = async (req, res) => {
 // @route  PUT /api/products/:id
 // @access Private (admin only)
 export const updateProduct = async (req, res) => {
-  console.log('Incoming update request for product:', req.params.id);
-  console.log('Request body:', req.body);
 
   try {
     const { name, description, category, price, stock, image } = req.body;
-
     // Check if all necessary fields are provided in req.body
     if (
       !name ||
       !description ||
       !category ||
       price === undefined ||
-      stock === undefined ||
-      !image
+      stock === undefined
     ) {
       console.log('Missing fields in request body');
       return res.status(400).json({
@@ -103,20 +99,17 @@ export const updateProduct = async (req, res) => {
         .json({ message: 'Not authorized to update this product' });
     }
 
-    // Logging the existing product data before updating
-    console.log('Existing product data:', product);
-
     // Assigning new values or keeping old ones
     product.name = name || product.name;
     product.description = description || product.description;
     product.category = category || product.category;
     product.price = price || product.price;
     product.stock = stock || product.stock;
-    product.image = image || product.image;
+    product.image = image;
+
 
     // Save the updated product
     const updatedProduct = await product.save();
-    console.log('Product successfully updated:', updatedProduct);
 
     res.json(updatedProduct);
   } catch (error) {
