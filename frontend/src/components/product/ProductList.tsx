@@ -1,5 +1,5 @@
 import { AppDispatch, RootState } from '../../app/store';
-import { Button, Pagination, Spin } from 'antd';
+import { Button, Pagination, Spin, Checkbox } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -13,7 +13,9 @@ const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { keyword } = useParams();
-  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+  const { user, isAuthenticated } = useSelector(
+    (state: RootState) => state.user
+  );
 
   const { products, loading, error } = useSelector(
     (state: RootState) => state.products
@@ -35,6 +37,8 @@ const ProductList: React.FC = () => {
 
   const [currentPage, setCurrentPage] = useState(getStoredPage());
   const [sortOption, setSortOption] = useState(getStoredSortOption());
+  const [showOwnedProducts, setShowOwnedProducts] = useState(false); // for "Show Only My Products"
+  const [showInStockProducts, setShowInStockProducts] = useState(false); // for "In Stock Products"
   const pageSize = 8;
 
   useEffect(() => {
@@ -61,8 +65,24 @@ const ProductList: React.FC = () => {
     navigate('/create-product');
   };
 
-  // sorting
-  const sortedProducts = [...products].sort((a, b) => {
+  // Filter products based on the two checkboxes
+  const filteredProducts = products.filter((product) => {
+    let matchesOwner = true;
+    let inStock = true;
+
+    if (showOwnedProducts) {
+      matchesOwner = product.owner === user?.id;
+    }
+
+    if (showInStockProducts) {
+      inStock = product.stock !== 0;
+    }
+
+    return matchesOwner && inStock;
+  });
+
+  // Sorting
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortOption === 'price_low_to_high') {
       return a.price - b.price;
     } else if (sortOption === 'price_high_to_low') {
@@ -74,7 +94,7 @@ const ProductList: React.FC = () => {
     }
   });
 
-  // get current page products
+  // Get current page products
   const paginatedProducts = sortedProducts.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
@@ -97,6 +117,26 @@ const ProductList: React.FC = () => {
       <div className='flex justify-between items-center'>
         <h2 className='text-2xl font-semibold'>Products</h2>
         <div className='flex items-center space-x-4'>
+          {isAdmin && (
+            <Checkbox
+              checked={showOwnedProducts}
+              onChange={(e) => {
+                setShowOwnedProducts(e.target.checked);
+                setCurrentPage(1); // Reset page to 1 when filter changes
+              }}
+            >
+              Show Only My Products
+            </Checkbox>
+          )}
+          <Checkbox
+            checked={showInStockProducts}
+            onChange={(e) => {
+              setShowInStockProducts(e.target.checked);
+              setCurrentPage(1); // Reset page to 1 when filter changes
+            }}
+          >
+            In Stock Products
+          </Checkbox>
           <SortingOptions sortOption={sortOption} onSortChange={sortProducts} />
           {isAdmin && (
             <Button
@@ -120,7 +160,7 @@ const ProductList: React.FC = () => {
         <Pagination
           current={currentPage}
           onChange={handlePageChange}
-          total={products.length}
+          total={filteredProducts.length} // Use filtered products count for pagination
           pageSize={pageSize}
         />
       </div>
