@@ -66,11 +66,8 @@ export const loginUser = createAsyncThunk(
         dispatch(syncCart(localCartItems));
       }
       return response;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(
-        error.response?.data || 'Error logging in. Please try again.'
-      );
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -103,11 +100,8 @@ export const signupUser = createAsyncThunk(
         dispatch(syncCart(localCartItems));
       }
       return response;
-    } catch (err) {
-      const error = err as AxiosError;
-      return rejectWithValue(
-        error.response?.data || 'Error signing up. Please try again.'
-      );
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
