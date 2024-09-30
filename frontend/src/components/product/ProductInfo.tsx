@@ -1,9 +1,20 @@
+import { AppDispatch, RootState } from '../../app/store';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
 import AddtoCartButton from '../cart/AddtoCartButton';
 import { Product } from '../../features/product/productSlice';
-import React from 'react';
 import ProductEdit from './ProductEdit';
+import { fetchCart } from '../../features/cart/cartSlice';
 
 const ProductInfo: React.FC<{ product: Product }> = ({ product }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
+
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch, isAuthenticated]);
+
   return (
     <div className='flex flex-col justify-between'>
       <div>
