@@ -7,6 +7,7 @@ import CartTrigger from '../cart/CartTrigger';
 import SearchBox from '../product/SearchBox';
 import { UserOutlined } from '@ant-design/icons';
 import { logout } from '../../features/user/userSlice';
+import { resetCart } from '../../features/cart/cartSlice';
 
 const { Header } = Layout;
 
@@ -18,6 +19,7 @@ const MergedHeader = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    dispatch(resetCart());
     navigate('/');
   };
 
