@@ -1,8 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-import { AppDispatch } from '../../app/store';
-import { fetchProductById } from '../product/productSlice';
+import { Product } from '../product/productSlice';
 
 export interface CartItem {
   productId: string;
@@ -10,11 +9,6 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
-}
-
-interface SimplifiedCartItem {
-  productId: string;
-  quantity: number;
 }
 
 interface CartState {
@@ -53,31 +47,6 @@ const calculateTotals = (state: CartState) => {
   state.total = state.subTotal + state.tax - state.discountAmount;
 };
 
-const convertToDetailedCartItems = async (
-  cartItems: SimplifiedCartItem[],
-  dispatch: AppDispatch
-): Promise<CartItem[]> => {
-  try {
-    const detailedCartItems = await Promise.all(
-      cartItems.map(async (cartItem: SimplifiedCartItem) => {
-        const product = await dispatch(
-          fetchProductById(cartItem.productId)
-        ).unwrap();
-        return {
-          productId: cartItem.productId,
-          quantity: cartItem.quantity,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-        };
-      })
-    );
-    return detailedCartItems;
-  } catch (err) {
-    console.log(err);
-    throw new Error('Something went wrong fetching the cart items');
-  }
-};
 
 // Fetch cart details (from server if authenticated, from localStorage if not)
 export const fetchCart = createAsyncThunk(
@@ -106,23 +75,10 @@ export const fetchCart = createAsyncThunk(
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'
       );
+      console.log('localCartItems: ', localCartItems);
 
       if (localCartItems.length > 0) {
-        try {
-          // Create a new array to hold the detailed cart items
-          const detailedCartItems = await convertToDetailedCartItems(
-            localCartItems,
-            dispatch as AppDispatch
-          );
-
-          return { items: detailedCartItems };
-        } catch (err) {
-          const error = err as AxiosError;
-          return rejectWithValue(
-            error.response?.data ||
-              'Something went wrong fetching the cart items'
-          );
-        }
+        return { items: localCartItems };
       } else {
         return { items: [] };
       }
@@ -137,7 +93,10 @@ export const addItemToCart = createAsyncThunk(
     { productId, quantity }: { productId: string; quantity: number },
     { getState, dispatch, rejectWithValue }
   ) => {
-    const { user } = getState() as { user: { isAuthenticated: boolean } };
+    const { user, products } = getState() as {
+      user: { isAuthenticated: boolean };
+      products: { products: Product[] };
+    };
 
     if (user.isAuthenticated) {
       // Authenticated users (server-side cart)
@@ -152,7 +111,6 @@ export const addItemToCart = createAsyncThunk(
             },
           }
         );
-        console.log("here: ", response.data)
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -162,7 +120,35 @@ export const addItemToCart = createAsyncThunk(
       }
     } else {
       // Guest users (localStorage)
-      dispatch(addItemToCartLocal({ productId, quantity }));
+      let product = products.products.find((p) => p._id === productId);
+      if (!product) {
+        // If product not in state, fetch the product details from the API
+        try {
+          const response = await axios.get(`/api/products/${productId}`);
+          product = response.data;
+        } catch (err) {
+          const error = err as AxiosError;
+          return rejectWithValue(
+            error.response?.data || 'Error fetching product details'
+          );
+        }
+      }
+
+      // Ensure product details are available before adding to the cart
+      if (!product) {
+        return rejectWithValue('Product not found');
+      }
+
+      // Dispatch local cart action for guest users
+      dispatch(
+        addItemToCartLocal({
+          productId,
+          quantity,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+        })
+      );
     }
   }
 );
@@ -303,39 +289,52 @@ const cartSlice = createSlice({
   reducers: {
     // For unauthenticated users (localStorage operations)
     addItemToCartLocal: (state, action) => {
+      const { productId, quantity, name, price, image } = action.payload;
+
       const existingItem = state.items.find(
-        (item) => item.productId === action.payload.productId
+        (item) => item.productId === productId
       );
+
       if (existingItem) {
-        existingItem.quantity += action.payload.quantity;
+        existingItem.quantity += quantity;
       } else {
-        state.items.push(action.payload);
+        const newItem: CartItem = {
+          productId,
+          quantity,
+          name,
+          price,
+          image,
+        };
+        state.items.push(newItem);
       }
-      saveCartToLocalStorage(state.items); // Save updated cart to localStorage
-      calculateTotals(state); // Update totals
+      saveCartToLocalStorage(state.items);
+      calculateTotals(state);
     },
+
     removeItemFromCartLocal: (state, action) => {
       state.items = state.items.filter(
         (item) => item.productId !== action.payload
       );
-      saveCartToLocalStorage(state.items); // Save updated cart to localStorage
-      calculateTotals(state); // Update totals
+      saveCartToLocalStorage(state.items);
+      calculateTotals(state);
     },
+
     updateCartItemQuantityLocal: (state, action) => {
-      const item = state.items.find(
-        (item) => item.productId === action.payload.productId
-      );
+      const { productId, quantity } = action.payload;
+      const item = state.items.find((item) => item.productId === productId);
       if (item) {
-        item.quantity = action.payload.quantity;
+        item.quantity = quantity;
       }
-      saveCartToLocalStorage(state.items); // Save updated cart to localStorage
-      calculateTotals(state); // Update totals
+      saveCartToLocalStorage(state.items);
+      calculateTotals(state);
     },
+
     applyDiscountCodeLocal: (state, action) => {
       state.discountCode = action.payload;
       state.discountAmount = 20; // Just a dummy value, change based on your logic
       calculateTotals(state); // Update totals
     },
+
     resetCart: (state) => {
       state.items = [];
       state.subTotal = 0;
