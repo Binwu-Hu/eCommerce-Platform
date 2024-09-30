@@ -14,7 +14,6 @@ const generateToken = (id, isAdmin) => {
   });
 };
 
-console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY);
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // User login

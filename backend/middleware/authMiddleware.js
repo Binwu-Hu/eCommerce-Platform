@@ -2,7 +2,6 @@ import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 
 export const authMiddleware = async (req, res, next) => {
-  // console.log('Auth middleware');
   const token = 
     req.header('x-auth-token') || req.headers?.authorization?.match(/^Bearer (.+)/)?.[1];
   if (!token) {
