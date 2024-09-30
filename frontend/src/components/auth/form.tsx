@@ -15,7 +15,11 @@ const AuthForm: React.FC<FormProps> = ({ formType, onSubmit, loading }) => {
   };
 
   const handleSubmit = (values: any) => {
-    onSubmit({ ...values, isVendor });
+    if (formType === 'login') {
+      onSubmit({ ...values, isVendor });
+    } else {
+      onSubmit(values);
+    }
   };
 
   return (

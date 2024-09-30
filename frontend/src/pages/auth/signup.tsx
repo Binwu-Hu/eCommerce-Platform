@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { signupUser, clearError } from '../../features/user/userSlice';
-import { Form, Input, Button, Card, Typography, Radio } from 'antd';
+import { Card, Typography } from 'antd';
+import AuthForm from '../../components/auth/Form';
 
 const { Title, Text } = Typography;
 
@@ -10,15 +11,11 @@ const Signup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated } = useSelector((state) => state.user);
-  const [isAdmin, setIsAdmin] = useState(false);
 
-  const handleSubmit = (values: { name: string; email: string; password: string }) => {
+  const handleSubmit = (values: { name: string; email: string; password: string; role: string }) => {
+    const isAdmin = values.role === 'Vendor';
     const signupData = { ...values, isAdmin };
     dispatch(signupUser(signupData));
-  };
-
-  const handleRoleChange = (e: any) => {
-    setIsAdmin(e.target.value === 'Vendor');
   };
 
   useEffect(() => {
@@ -36,54 +33,7 @@ const Signup = () => {
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
       <Card style={{ width: 400, textAlign: 'center' }}>
         <Title level={3}>Sign up an account</Title>
-        <Form onFinish={handleSubmit} layout="vertical">
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: 'Please input your name!' }]}
-          >
-            <Input placeholder="Enter your name" />
-          </Form.Item>
-
-          <Form.Item
-            name="email"
-            label="Email"
-            rules={[
-              { required: true, message: 'Please input your email!' },
-              { type: 'email', message: 'Please enter a valid email including @ symbol!' }
-            ]}
-          >
-            <Input placeholder="Enter your email" />
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[
-              { required: true, message: 'Please input your password!' },
-              { min: 4, message: 'Password must be at least 4 characters long!' }
-            ]}
-          >
-            <Input.Password placeholder="Enter your password" />
-          </Form.Item>
-
-          <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: 'Please select a role!' }]}
-          >
-            <Radio.Group onChange={handleRoleChange}>
-              <Radio value="Customer">Customer</Radio>
-              <Radio value="Vendor">Vendor</Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              Create account
-            </Button>
-          </Form.Item>
-        </Form>
+        <AuthForm formType="signup" onSubmit={handleSubmit} loading={loading} />
         {error && <Text type="danger">{error}</Text>}
         <Text>
           Already have an account? <Link to="/login">Sign in</Link>
