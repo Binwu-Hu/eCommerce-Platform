@@ -169,7 +169,7 @@ export const addItemToCartForGuest = createAsyncThunk(
 // Remove item from cart (both localStorage and server)
 export const removeItemFromCart = createAsyncThunk(
   'cart/removeItemFromCart',
-  async (productId: string, { getState, dispatch, rejectWithValue }) => {
+  async (productId: string, { getState, rejectWithValue }) => {
     const { user } = getState() as { user: { isAuthenticated: boolean } };
 
     if (user.isAuthenticated) {

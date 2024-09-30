@@ -1,16 +1,18 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { loginUser, clearError } from '../../features/user/userSlice';
+import { AppDispatch, RootState } from '../../app/store';
 import { Card, Typography } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { clearError, loginUser } from '../../features/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+
 import AuthForm from '../../components/auth/Form';
+import { useEffect } from 'react';
 
 const { Title, Text } = Typography;
 
 const Login = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, error, isAuthenticated } = useSelector((state) => state.user);
+  const { loading, error, isAuthenticated } = useSelector((state: RootState) => state.user);
 
   const handleSubmit = (values: { email: string; password: string; isVendor: boolean }) => {
     const loginData = {
