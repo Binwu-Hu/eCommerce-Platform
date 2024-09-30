@@ -82,6 +82,10 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           src={item.image}
           alt={item.name}
           className='w-20 h-20 object-cover'
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/sample.jpg';
+          }}
         />
       </div>
 
