@@ -65,10 +65,30 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+
+    // Apply restrictions for price and stock
+    if (name === 'price') {
+      const regex = /^\d+(\.\d{0,2})?$/;
+      if (regex.test(value) || value === '') {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      }
+    } else if (name === 'stock') {
+      const intRegex = /^\d*$/; // Allow only non-negative integers
+      if (intRegex.test(value)) {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      }
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleImageUpload = async (file: File) => {
@@ -192,7 +212,7 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
               name='price'
               value={formData?.price}
               onChange={handleInputChange}
-              type='number'
+              type='text'
               placeholder='Enter price'
               className='rounded-md'
             />
@@ -203,7 +223,7 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
               name='stock'
               value={formData?.stock}
               onChange={handleInputChange}
-              type='number'
+              type='text'
               placeholder='Enter stock quantity'
               className='rounded-md'
             />
