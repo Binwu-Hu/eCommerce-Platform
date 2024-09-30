@@ -22,11 +22,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
   // Local state to handle discount feedback
   const [discountError, setDiscountError] = useState<string | null>(null);
   const [appliedDiscount, setAppliedDiscount] = useState<string | null>(null);
+  const [discountCodeInput, setDiscountCodeInput] = useState<string>('');
 
   // Accessing the cart state from the Redux store
-  const { items, subTotal, tax, discountAmount, total, loading } = useSelector(
-    (state: RootState) => state.cart
-  );
+  const { items, subTotal, tax, discountAmount, total, loading, discountCode, error } =
+    useSelector((state: RootState) => state.cart);
 
   // Fetch the cart items once the drawer is opened
   useEffect(() => {
@@ -38,28 +38,34 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
       if (storedDiscountCode && storedDiscountAmount) {
         setAppliedDiscount(storedDiscountCode);
         dispatch(applyDiscountCodeLocal(storedDiscountCode));
-        setDiscountError(null); // Clear any errors
+        setDiscountError(null);
       }
     }
   }, [visible, dispatch]);
 
+  useEffect(() => {
+    if (visible) {
+      setAppliedDiscount(discountCode);
+    }
+  }, [isAuthenticated, discountCode, visible]);
+
   // Handle applying a discount code
-  const handleApplyDiscount = (discountCode: string) => {
-    if (discountCode) {
+  const handleApplyDiscount = () => {
+    if (discountCodeInput) {
       if (isAuthenticated) {
-        dispatch(applyDiscountCode(discountCode))
+        dispatch(applyDiscountCode(discountCodeInput))
           .unwrap()
           .then(() => {
-            setAppliedDiscount(discountCode);
+            setAppliedDiscount(discountCodeInput);
             setDiscountError(null);
           })
           .catch((err) => {
             setDiscountError(err);
           });
       } else {
-        dispatch(applyDiscountCodeLocal(discountCode));
-        setAppliedDiscount(discountCode); 
-        setDiscountError(null);
+        dispatch(applyDiscountCodeLocal(discountCodeInput));
+        setAppliedDiscount(discountCode);
+        setDiscountError(error);
       }
     }
   };
@@ -104,19 +110,14 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
                 <div className='flex justify-between'>
                   <Input
                     className='w-96'
+                    value={discountCodeInput}
                     placeholder='20 DOLLAR OFF'
-                    onPressEnter={(e) =>
-                      handleApplyDiscount((e.target as HTMLInputElement).value)
-                    }
+                    onChange={(e) => setDiscountCodeInput(e.target.value)}
+                    onPressEnter={handleApplyDiscount}
                   />
                   <Button
                     type='primary'
-                    onClick={() =>
-                      handleApplyDiscount(
-                        (document.querySelector('input') as HTMLInputElement)
-                          ?.value
-                      )
-                    }
+                    onClick={handleApplyDiscount}
                     className='ml-2'
                   >
                     Apply

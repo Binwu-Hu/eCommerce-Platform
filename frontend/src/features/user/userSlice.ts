@@ -5,9 +5,9 @@ import {
   sendResetPasswordLinkApi,
   signupUserApi,
 } from '../../api/user';
+import { resetCart, syncCart } from '../cart/cartSlice';
 
 import { AxiosError } from 'axios';
-import { syncCart } from '../cart/cartSlice';
 
 export interface User {
   id: string;
@@ -152,8 +152,6 @@ const userSlice = createSlice({
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('cartItems');
-      localStorage.removeItem('discountCode');
-      localStorage.removeItem('discountAmount');
       state.user = null;
       state.isAuthenticated = false;
     },

@@ -19,6 +19,7 @@ interface CartItemProps {
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated } = useSelector((state: RootState) => state.user);
+  const { error } = useSelector((state: RootState) => state.cart);
 
   // Handle quantity decrease
   const handleDecrement = () => {
@@ -65,7 +66,6 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     }
   };
 
-  // Handle removing an item from the cart
   const handleRemove = () => {
     if (isAuthenticated) {
       dispatch(removeItemFromCart(item.productId));
@@ -102,6 +102,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
               onClick={handleIncrement}
               size='small'
             />
+            {error && error === item.productId && (
+              <div className='text-red-500 ml-4'>
+                <p>Not enough stock available!</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

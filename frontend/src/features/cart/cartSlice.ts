@@ -33,6 +33,10 @@ const initialState: CartState = {
   error: null,
 };
 
+interface CustomError {
+  notEnoughStockProductId: string;
+}
+
 const saveCartToLocalStorage = (items: CartItem[]) => {
   localStorage.setItem('cartItems', JSON.stringify(items));
 };
@@ -74,12 +78,14 @@ export const fetchCart = createAsyncThunk(
       const localCartItems = JSON.parse(
         localStorage.getItem('cartItems') || '[]'
       );
+      const discountAmount = localStorage.getItem('discountAmount') || 0;
+      const discountCode = localStorage.getItem('discountCode') || null;
       console.log('localCartItems: ', localCartItems);
 
       if (localCartItems.length > 0) {
-        return { items: localCartItems };
+        return { items: localCartItems, discountAmount, discountCode };
       } else {
-        return { items: [] };
+        return { items: [], discountAmount, discountCode };
       }
     }
   }
@@ -366,9 +372,17 @@ const cartSlice = createSlice({
     },
 
     applyDiscountCodeLocal: (state, action) => {
-      state.discountCode = action.payload;
-      state.discountAmount = 20;
-      calculateTotals(state);
+      if (action.payload === '20 DOLLAR OFF') {
+        state.discountCode = action.payload;
+        state.discountAmount = 20;
+        state.error = null;
+        calculateTotals(state);
+      } else {
+        state.discountCode = null;
+        state.discountAmount = 0;
+        state.error = 'Invalid discount code';
+        calculateTotals(state);
+      }
     },
 
     resetCart: (state) => {
@@ -378,7 +392,8 @@ const cartSlice = createSlice({
       state.tax = 0;
       state.total = 0;
       state.discountCode = null;
-      localStorage.removeItem('cartItems'); // Clear localStorage
+      localStorage.removeItem('discountCode');
+      localStorage.removeItem('discountAmount');
     },
   },
   extraReducers: (builder) => {
@@ -390,7 +405,9 @@ const cartSlice = createSlice({
     builder.addCase(fetchCart.fulfilled, (state, action) => {
       state.loading = false;
       state.items = action.payload.items;
-      calculateTotals(state); // Calculate totals after fetching
+      state.discountAmount = action.payload.discountAmount;
+      state.discountCode = action.payload.discountCode;
+      calculateTotals(state);
     });
     builder.addCase(fetchCart.rejected, (state, action) => {
       state.loading = false;
@@ -424,7 +441,9 @@ const cartSlice = createSlice({
     });
     builder.addCase(removeItemFromCart.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      const error = action.payload as CustomError;
+      state.error =
+        error?.notEnoughStockProductId || 'An unknown error occurred';
     });
 
     // Update Item Quantity
@@ -439,7 +458,9 @@ const cartSlice = createSlice({
     });
     builder.addCase(updateCartItemQuantity.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      const error = action.payload as CustomError;
+      state.error =
+        error?.notEnoughStockProductId || 'An unknown error occurred';
     });
 
     // Apply Discount Code
@@ -470,7 +491,9 @@ const cartSlice = createSlice({
     });
     builder.addCase(syncCart.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      const error = action.payload as CustomError;
+      state.error =
+        error?.notEnoughStockProductId || 'An unknown error occurred';
     });
   },
 });

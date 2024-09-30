@@ -67,7 +67,9 @@ export const addItemToCart = async (req, res) => {
       product.stock <
       quantity + (productInCart ? productInCart.quantity : 0)
     ) {
-      return res.status(400).json({ message: 'Not enough stock available' });
+      return res
+        .status(400)
+        .json({ notEnoughStockProductId: `${productId}` });
     }
 
     if (productInCart) {
@@ -233,7 +235,9 @@ export const updateCartItemQuantity = async (req, res) => {
 
     // Check if the requested quantity exceeds the stock
     if (product.stock < quantity) {
-      return res.status(400).json({ message: 'Not enough stock available' });
+      return res
+        .status(400)
+        .json({ notEnoughStockProductId: `${productId}` });
     }
 
     const productInCart = cart.items.find(
@@ -274,7 +278,7 @@ export const syncCart = async (req, res) => {
     // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
-    console.log("cart1: ", cart)
+    console.log('cart1: ', cart);
 
     if (!cart) {
       cart = new Cart({
@@ -284,7 +288,7 @@ export const syncCart = async (req, res) => {
       });
     }
 
-    console.log("guestItems: ", items)
+    console.log('guestItems: ', items);
 
     // Loop through the guest cart items
     for (let guestItem of items) {
@@ -306,7 +310,7 @@ export const syncCart = async (req, res) => {
       // Check if the requested total quantity exceeds the stock
       if (product.stock < totalRequestedQuantity) {
         return res.status(400).json({
-          message: `Not enough stock available for product ${product.name}. Available stock: ${product.stock}, requested: ${totalRequestedQuantity}`,
+          notEnoughStockProductId: `${guestItem.productId}`,
         });
       }
 
@@ -322,7 +326,7 @@ export const syncCart = async (req, res) => {
       }
     }
 
-    console.log("cart2: ", cart);
+    console.log('cart2: ', cart);
     await cart.save();
     cart = await Cart.findOne({ user: userId }).populate(
       'items.product',
@@ -330,7 +334,7 @@ export const syncCart = async (req, res) => {
     );
 
     const formattedCart = formatCartResponse(cart);
-    console.log("formattedCart: ", formattedCart);
+    console.log('formattedCart: ', formattedCart);
     return res.status(200).json(formattedCart);
   } catch (error) {
     return res.status(500).json({ message: 'Error syncing cart', error });
