@@ -262,16 +262,29 @@ export const applyDiscountCode = createAsyncThunk(
             },
           }
         );
+        localStorage.setItem('discountCode', discountCode);
+        localStorage.setItem('discountAmount', '20');
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
+        if (error.response?.status === 400) {
+          return rejectWithValue('Invalid discount code');
+        }
         return rejectWithValue(
           error.response?.data || 'Something went wrong applying discount code'
         );
       }
     } else {
       // Guest users (localStorage)
-      dispatch(applyDiscountCodeLocal(discountCode));
+      if (discountCode === '20 DOLLAR OFF') {
+        // Simulate discount logic for guest users
+        dispatch(applyDiscountCodeLocal(discountCode));
+        localStorage.setItem('discountCode', discountCode);
+        localStorage.setItem('discountAmount', '20');
+        return { discountCode, discountAmount: 20 };
+      } else {
+        return rejectWithValue('Invalid discount code');
+      }
     }
   }
 );
@@ -453,7 +466,7 @@ const cartSlice = createSlice({
     builder.addCase(syncCart.fulfilled, (state, action) => {
       state.loading = false;
       state.items = action.payload.items;
-      calculateTotals(state); // Calculate totals after syncing
+      calculateTotals(state);
     });
     builder.addCase(syncCart.rejected, (state, action) => {
       state.loading = false;

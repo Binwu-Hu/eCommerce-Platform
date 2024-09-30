@@ -27,7 +27,6 @@ interface UserState {
 const token = localStorage.getItem('token');
 const storedUser = localStorage.getItem('user');
 
-
 // Initial state with localStorage rehydration
 const initialState: UserState = {
   user:
@@ -138,9 +137,10 @@ const userSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem('token');
-      localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('cartItems');
+      localStorage.removeItem('discountCode');
+      localStorage.removeItem('discountAmount');
       state.user = null;
       state.isAuthenticated = false;
     },
