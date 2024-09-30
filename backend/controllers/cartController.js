@@ -5,9 +5,21 @@ const isUserLoggedIn = (req) => {
   return !!req.user;
 };
 
-const formatCartResponse = (cart) => {
-  cart.subTotal = cart.items.reduce(
-    (acc, item) => acc + item.quantity * item.product.price,
+const formatCartResponse = async (cart) => {
+  cart.items = cart.items.filter((item) => item.product !== null);
+  await cart.save();
+
+  const formattedCartItems = cart.items.map((item) => ({
+    productId: item.product._id,
+    name: item.product.name,
+    price: item.product.price,
+    quantity: item.quantity,
+    image: item.product.image,
+  }));
+  //   console.log("formattedCartItems: ", formattedCartItems);
+
+  cart.subTotal = formattedCartItems.reduce(
+    (acc, item) => acc + item.quantity * item.price,
     0
   );
   cart.tax = (cart.subTotal * 0.1).toFixed(2);
@@ -16,15 +28,6 @@ const formatCartResponse = (cart) => {
     parseFloat(cart.tax) -
     cart.discountAmount
   ).toFixed(2);
-
-  // Format the cart items
-  const formattedCartItems = cart.items.map((item) => ({
-    productId: item.product._id,
-    name: item.product.name,
-    price: item.product.price,
-    quantity: item.quantity,
-    image: item.product.image,
-  }));
 
   return {
     user: cart.user._id,
@@ -67,9 +70,7 @@ export const addItemToCart = async (req, res) => {
       product.stock <
       quantity + (productInCart ? productInCart.quantity : 0)
     ) {
-      return res
-        .status(400)
-        .json({ notEnoughStockProductId: `${productId}` });
+      return res.status(400).json({ notEnoughStockProductId: `${productId}` });
     }
 
     if (productInCart) {
@@ -87,7 +88,7 @@ export const addItemToCart = async (req, res) => {
       'name price image'
     );
 
-    const formattedCart = formatCartResponse(cart);
+    const formattedCart = await formatCartResponse(cart);
     return res.status(200).json(formattedCart);
   } catch (error) {
     return res
@@ -124,7 +125,7 @@ export const removeItemFromCart = async (req, res) => {
       'name price image'
     );
 
-    const formattedCart = formatCartResponse(cart);
+    const formattedCart = await formatCartResponse(cart);
     return res.status(200).json(formattedCart);
   } catch (error) {
     return res
@@ -164,7 +165,7 @@ export const applyDiscountCode = async (req, res) => {
       'name price image'
     );
 
-    const formattedCart = formatCartResponse(cart);
+    const formattedCart = await formatCartResponse(cart);
     return res.status(200).json(formattedCart);
   } catch (error) {
     return res
@@ -199,7 +200,7 @@ export const getCart = async (req, res) => {
       });
     }
 
-    const formattedCart = formatCartResponse(cart);
+    const formattedCart = await formatCartResponse(cart);
     return res.status(200).json(formattedCart);
   } catch (error) {
     return res
@@ -235,9 +236,7 @@ export const updateCartItemQuantity = async (req, res) => {
 
     // Check if the requested quantity exceeds the stock
     if (product.stock < quantity) {
-      return res
-        .status(400)
-        .json({ notEnoughStockProductId: `${productId}` });
+      return res.status(400).json({ notEnoughStockProductId: `${productId}` });
     }
 
     const productInCart = cart.items.find(
@@ -252,7 +251,7 @@ export const updateCartItemQuantity = async (req, res) => {
         'name price image'
       );
 
-      const formattedCart = formatCartResponse(cart);
+      const formattedCart = await formatCartResponse(cart);
       console.log('cart after update: ', cart);
       return res.status(200).json(formattedCart);
     }
@@ -309,9 +308,9 @@ export const syncCart = async (req, res) => {
 
       // Check if the requested total quantity exceeds the stock
       if (product.stock < totalRequestedQuantity) {
-        return res.status(400).json({
-          notEnoughStockProductId: `${guestItem.productId}`,
-        });
+        return res
+          .status(400)
+          .json({ notEnoughStockProductId: `${productId}` });
       }
 
       // If product already exists in the cart, update its quantity
@@ -333,7 +332,7 @@ export const syncCart = async (req, res) => {
       'name price image'
     );
 
-    const formattedCart = formatCartResponse(cart);
+    const formattedCart = await formatCartResponse(cart);
     console.log('formattedCart: ', formattedCart);
     return res.status(200).json(formattedCart);
   } catch (error) {
