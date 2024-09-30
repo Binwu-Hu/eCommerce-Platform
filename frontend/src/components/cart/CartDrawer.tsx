@@ -47,7 +47,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
 
   return (
     <Drawer
-      title={`Cart (${totalQuantity})`}
+      title={
+        <span className='text-2xl font-bold'>{`Cart (${totalQuantity})`}</span>
+      }
       placement='right'
       onClose={onClose}
       visible={visible}
@@ -73,28 +75,37 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
                 <CartItem key={item.productId} item={item} />
               ))}
 
-              <Divider />
+              <Divider className='my-2' />
 
               {/* Apply Discount Code */}
-              <div className='flex justify-between mb-4'>
-                <Input
-                  placeholder='Apply Discount Code'
-                  onPressEnter={(e) =>
-                    handleApplyDiscount((e.target as HTMLInputElement).value)
-                  }
-                />
-                <Button
-                  type='primary'
-                  onClick={() =>
-                    handleApplyDiscount(
-                      (document.querySelector('input') as HTMLInputElement)
-                        ?.value
-                    )
-                  }
-                >
-                  Apply
-                </Button>
+              <div className='flex flex-col mb-4'>
+                <label className='mb-2 font-semibold'>
+                  Apply Discount Code
+                </label>
+                <div className='flex justify-between'>
+                  <Input
+                    className='w-96'
+                    placeholder='20 DOLLAR OFF'
+                    onPressEnter={(e) =>
+                      handleApplyDiscount((e.target as HTMLInputElement).value)
+                    }
+                  />
+                  <Button
+                    type='primary'
+                    onClick={() =>
+                      handleApplyDiscount(
+                        (document.querySelector('input') as HTMLInputElement)
+                          ?.value
+                      )
+                    }
+                    className='ml-2'
+                  >
+                    Apply
+                  </Button>
+                </div>
               </div>
+
+              <Divider />
 
               {/* Cart Totals */}
               <div className='mb-2 flex justify-between'>
