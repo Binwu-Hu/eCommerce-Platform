@@ -87,7 +87,6 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
       const imageUrl = `http://localhost:3000${response.data.imageUrl}`;
       setImagePreview(imageUrl); // Set preview image
   
-      console.log('image url', imageUrl);
       setFormData((prevData) => ({ ...prevData, image: imageUrl })); // Update formData with the image URL
     } catch (error) {
       message.error('Failed to upload image');

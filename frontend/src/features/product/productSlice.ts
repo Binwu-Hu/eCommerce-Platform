@@ -131,8 +131,6 @@ export const updateProduct = createAsyncThunk<
   { rejectValue: string }
 >('products/updateProduct', async ({ id, data }, { rejectWithValue }) => {
   try {
-    console.log('Making PUT request to URL:', `/api/products/${id}`);
-    console.log('Updating product:', id, data);
     const token = localStorage.getItem('token');
     if (!token) {
       throw new Error('No token found. Please log in.');
