@@ -262,7 +262,7 @@ export const updateCartItemQuantity = async (req, res) => {
 
 // Sync guest cart from localStorage after user logs in
 export const syncCart = async (req, res) => {
-  const { items } = req.body; // Items from the guest cart (localStorage)
+  const { items } = req.body;
 
   try {
     // Unlogged-in users
@@ -273,6 +273,7 @@ export const syncCart = async (req, res) => {
     // Logged-in users
     const userId = req.user._id;
     let cart = await Cart.findOne({ user: userId });
+    console.log("cart1: ", cart)
 
     if (!cart) {
       cart = new Cart({
@@ -282,18 +283,20 @@ export const syncCart = async (req, res) => {
       });
     }
 
+    console.log("guestItems: ", items)
+
     // Loop through the guest cart items
     for (let guestItem of items) {
-      const product = await Product.findById(guestItem.product._id);
+      const product = await Product.findById(guestItem.productId);
 
       if (!product) {
         return res.status(404).json({
-          message: `Product not found for ID: ${guestItem.product._id}`,
+          message: `Product not found for ID: ${guestItem.productId}`,
         });
       }
 
       const productInCart = cart.items.find(
-        (item) => item.product.toString() === guestItem.product._id
+        (item) => item.product.toString() === guestItem.productId
       );
 
       const totalRequestedQuantity =
@@ -312,12 +315,13 @@ export const syncCart = async (req, res) => {
       } else {
         // Otherwise, add the new product to the cart
         cart.items.push({
-          product: guestItem.product._id,
+          product: guestItem.productId,
           quantity: guestItem.quantity,
         });
       }
     }
 
+    console.log("cart2: ", cart);
     await cart.save();
     cart = await Cart.findOne({ user: userId }).populate(
       'items.product',
@@ -325,6 +329,7 @@ export const syncCart = async (req, res) => {
     );
 
     const formattedCart = formatCartResponse(cart);
+    console.log("formattedCart: ", formattedCart);
     return res.status(200).json(formattedCart);
   } catch (error) {
     return res.status(500).json({ message: 'Error syncing cart', error });

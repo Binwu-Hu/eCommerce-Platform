@@ -292,7 +292,7 @@ export const syncCart = createAsyncThunk(
           },
         }
       );
-      localStorage.removeItem('cartItems'); // Clear localStorage after syncing
+      localStorage.removeItem('cartItems');
       return response.data;
     } catch (err) {
       const error = err as AxiosError;
