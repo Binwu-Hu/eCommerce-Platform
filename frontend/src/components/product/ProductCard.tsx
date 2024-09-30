@@ -1,7 +1,7 @@
 import { Card } from 'antd';
 import AddtoCartButton from '../cart/AddtoCartButton';
 import { Product } from '../../features/product/productSlice';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProductEdit from './ProductEdit';
 
@@ -16,6 +16,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     navigate(`/product/${product._id}`);
   };
 
+  const [objectFitStyle, setObjectFitStyle] = useState<'fill' | 'cover'>(
+    'fill'
+  );
+  const [imageHeight, setImageHeight] = useState('18rem');
+
+  useEffect(() => {
+    const updateStyles = () => {
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        setObjectFitStyle('cover');
+        setImageHeight('28rem');
+      } else {
+        setObjectFitStyle('fill');
+        setImageHeight('18rem');
+      }
+    };
+
+    updateStyles();
+
+    window.addEventListener('resize', updateStyles);
+
+    return () => {
+      window.removeEventListener('resize', updateStyles);
+    };
+  }, []);
+
   return (
     <Card
       hoverable
@@ -23,7 +48,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <img
           alt={product.name}
           src={product.image}
-          style={{ height: '18rem', width: '100%', objectFit: 'fill' }}
+          style={{
+            height: imageHeight,
+            width: '100%',
+            objectFit: objectFitStyle,
+          }}
           onClick={handleCardClick}
           onError={(e) => {
             const target = e.target as HTMLImageElement;

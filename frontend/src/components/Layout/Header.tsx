@@ -24,13 +24,13 @@ const MergedHeader = () => {
   };
 
   return (
-    <Header className='bg-black text-white px-4'>
-      <div className='flex justify-between items-center w-full'>
+    <Header className='bg-black text-white px-0 md:px-4 h-12 md:h-20 mb-10 md:mb-0'>
+      <div className='flex flex-col md:flex-row justify-between items-center w-full'>
         <div className='text-2xl font-bold text-white flex-shrink-0'>
           <Link to='/' style={{ color: 'white' }}>
             E-Commerce
           </Link>
-          <span className='text-base text-white  hidden md:inline'>
+          <span className='text-base text-white hidden md:inline'>
             {' '}
             Management Chuwa
           </span>
@@ -40,11 +40,11 @@ const MergedHeader = () => {
           <SearchBox />
         </div>
 
-        <div className='flex items-center space-x-6'>
+        <div className='flex justify-center md:justify-end items-center w-full md:w-auto bg-black px-4'>
           <Menu
             theme='dark'
             mode='horizontal'
-            className='bg-black text-white flex space-x-6'
+            className='bg-black text-white flex space-x-1'
           >
             {isAuthenticated ? (
               <Menu.Item
