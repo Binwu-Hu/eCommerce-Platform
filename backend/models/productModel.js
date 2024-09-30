@@ -25,7 +25,8 @@ const productSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: true,
+      required: false,
+      default: '/images/sample.jpg',
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,

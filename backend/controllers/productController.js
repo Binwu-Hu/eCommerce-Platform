@@ -41,14 +41,13 @@ export const createProduct = async (req, res) => {
     const { name, description, category, price, stock, image } = req.body;
 
     const owner = req.user ? req.user._id : null;
-    console.log('Owner:', owner);
 
     const newProduct = new Product({
       name,
       description,
       category,
       price,
-      stockQuantity: stock,
+      stock,
       image,
       owner,
     });
@@ -112,7 +111,7 @@ export const updateProduct = async (req, res) => {
     product.description = description || product.description;
     product.category = category || product.category;
     product.price = price || product.price;
-    product.stock = stock || product.stockQuantity;
+    product.stock = stock || product.stock;
     product.image = image || product.image;
 
     // Save the updated product
