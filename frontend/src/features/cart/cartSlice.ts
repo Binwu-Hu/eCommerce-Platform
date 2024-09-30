@@ -33,6 +33,10 @@ const initialState: CartState = {
   error: null,
 };
 
+interface CustomError {
+  notEnoughStockProductId: string;
+}
+
 const saveCartToLocalStorage = (items: CartItem[]) => {
   localStorage.setItem('cartItems', JSON.stringify(items));
 };
@@ -437,7 +441,9 @@ const cartSlice = createSlice({
     });
     builder.addCase(removeItemFromCart.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      const error = action.payload as CustomError;
+      state.error =
+        error?.notEnoughStockProductId || 'An unknown error occurred';
     });
 
     // Update Item Quantity
@@ -452,7 +458,9 @@ const cartSlice = createSlice({
     });
     builder.addCase(updateCartItemQuantity.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      const error = action.payload as CustomError;
+      state.error =
+        error?.notEnoughStockProductId || 'An unknown error occurred';
     });
 
     // Apply Discount Code
@@ -483,7 +491,9 @@ const cartSlice = createSlice({
     });
     builder.addCase(syncCart.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload as string;
+      const error = action.payload as CustomError;
+      state.error =
+        error?.notEnoughStockProductId || 'An unknown error occurred';
     });
   },
 });
