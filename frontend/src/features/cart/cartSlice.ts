@@ -75,7 +75,7 @@ export const fetchCart = createAsyncThunk(
         localStorage.getItem('cartItems') || '[]'
       );
       const discountAmount = localStorage.getItem('discountAmount') || 0;
-      const discountCode = localStorage.getItem('discountCode')|| null;
+      const discountCode = localStorage.getItem('discountCode') || null;
       console.log('localCartItems: ', localCartItems);
 
       if (localCartItems.length > 0) {
@@ -368,9 +368,17 @@ const cartSlice = createSlice({
     },
 
     applyDiscountCodeLocal: (state, action) => {
-      state.discountCode = action.payload;
-      state.discountAmount = 20;
-      calculateTotals(state);
+      if (action.payload === '20 DOLLAR OFF') {
+        state.discountCode = action.payload;
+        state.discountAmount = 20;
+        state.error = null;
+        calculateTotals(state);
+      } else {
+        state.discountCode = null;
+        state.discountAmount = 0;
+        state.error = 'Invalid discount code';
+        calculateTotals(state);
+      }
     },
 
     resetCart: (state) => {
