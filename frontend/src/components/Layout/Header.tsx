@@ -1,12 +1,12 @@
 import { AppDispatch, RootState } from '../../app/store';
-import { Input, Layout, Menu } from 'antd';
+import { Layout, Menu } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 
 import CartTrigger from '../cart/CartTrigger';
-import { logout } from '../../features/user/userSlice';
 import SearchBox from '../product/SearchBox';
+import { UserOutlined } from '@ant-design/icons';
+import { logout } from '../../features/user/userSlice';
 
 const { Header } = Layout;
 
@@ -33,14 +33,6 @@ const MergedHeader = () => {
             Management Chuwa
           </span>
         </div>
-
-        {/* <div className='flex items-center space-x-4 w-1/4 flex-shrink'>
-          <Input
-            placeholder='Search'
-            suffix={<SearchOutlined className='text-gray-400' />}
-            className='rounded-md w-full'
-          />
-        </div> */}
 
         <div className='hidden lg:block'>
           <SearchBox />
@@ -87,8 +79,10 @@ const MergedHeader = () => {
               </Menu.Item>
             )}
 
-            <Menu.Item key='2'>
-              <CartTrigger />
+            <Menu.Item key='2' style={{ backgroundColor: 'transparent' }}>
+              <div className='flex items-center space-x-2'>
+                <CartTrigger />
+              </div>
             </Menu.Item>
           </Menu>
         </div>

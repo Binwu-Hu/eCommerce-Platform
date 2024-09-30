@@ -6,6 +6,7 @@ import {
   signupUserApi,
 } from '../../api/user';
 
+import { AxiosError } from 'axios';
 import { syncCart } from '../cart/cartSlice';
 
 export interface User {
@@ -27,7 +28,6 @@ interface UserState {
 const token = localStorage.getItem('token');
 const storedUser = localStorage.getItem('user');
 
-
 // Initial state with localStorage rehydration
 const initialState: UserState = {
   user:
@@ -42,7 +42,7 @@ const initialState: UserState = {
 export const loginUser = createAsyncThunk(
   'user/login',
   async (
-    data: { email: string; password: string },
+    data: { email: string; password: string, isAdmin: boolean },
     { dispatch, rejectWithValue }
   ) => {
     try {
@@ -66,8 +66,11 @@ export const loginUser = createAsyncThunk(
         dispatch(syncCart(localCartItems));
       }
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err) {
+      const error = err as AxiosError;
+      return rejectWithValue(
+        error.response?.data || 'Error logging in. Please try again.'
+      );
     }
   }
 );
@@ -76,7 +79,7 @@ export const loginUser = createAsyncThunk(
 export const signupUser = createAsyncThunk(
   'user/signup',
   async (
-    data: { name: string; email: string; password: string },
+    data: { name: string; email: string; password: string, isAdmin: boolean },
     { dispatch, rejectWithValue }
   ) => {
     try {
@@ -100,8 +103,11 @@ export const signupUser = createAsyncThunk(
         dispatch(syncCart(localCartItems));
       }
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err) {
+      const error = err as AxiosError;
+      return rejectWithValue(
+        error.response?.data || 'Error signing up. Please try again.'
+      );
     }
   }
 );
@@ -112,8 +118,11 @@ export const sendResetPasswordLink = createAsyncThunk(
     try {
       const response = await sendResetPasswordLinkApi(email);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err) {
+      const error = err as AxiosError;
+      return rejectWithValue(
+        error.response?.data || 'Error sending reset password link.'
+      );
     }
   }
 );
@@ -126,8 +135,11 @@ export const resetPassword = createAsyncThunk(
         password: data.password,
       });
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (err) {
+      const error = err as AxiosError;
+      return rejectWithValue(
+        error.response?.data || 'Error reseting password.'
+      );
     }
   }
 );
@@ -138,9 +150,10 @@ const userSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem('token');
-      localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.removeItem('cartItems');
+      localStorage.removeItem('discountCode');
+      localStorage.removeItem('discountAmount');
       state.user = null;
       state.isAuthenticated = false;
     },

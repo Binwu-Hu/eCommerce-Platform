@@ -75,39 +75,52 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
   };
 
   return (
-    <div className='flex justify-between items-center mb-4'>
-      <div className='flex items-center space-x-4'>
+    <div className='flex justify-between items-center py-4 border-b'>
+      {/* Image */}
+      <div className='flex-shrink-0'>
         <img
           src={item.image}
           alt={item.name}
-          className='w-16 h-16 object-cover'
+          className='w-20 h-20 object-cover'
         />
-        <div>
-          <p className='font-semibold'>{item.name}</p>
-          <p className='text-blue-500'>{item.price}</p>
+      </div>
+
+      {/* Item Details */}
+      <div className='flex-1 px-4'>
+        <div className='flex flex-col'>
+          <p className='font-semibold truncate mb-2 text-lg'>{item.name}</p>
+          <div className='flex items-center space-x-2 mt-2'>
+            <Button
+              icon={<MinusOutlined />}
+              onClick={handleDecrement}
+              disabled={item.quantity === 1}
+              size='small'
+            />
+            <span>{item.quantity}</span>
+            <Button
+              icon={<PlusOutlined />}
+              onClick={handleIncrement}
+              size='small'
+            />
+          </div>
         </div>
       </div>
 
-      {/* Quantity Controls */}
-      <div className='flex items-center space-x-2'>
+      {/* Price and Remove */}
+      <div className='flex flex-col items-end text-right'>
+        <p className='font-semibold text-blue-500 text-lg'>{`$${item.price.toFixed(
+          2
+        )}`}</p>
         <Button
-          icon={<MinusOutlined />}
-          onClick={handleDecrement}
-          disabled={item.quantity === 1} // Disable if quantity is 1 (use remove instead)
-        />
-        <span>{item.quantity}</span>
-        <Button icon={<PlusOutlined />} onClick={handleIncrement} />
+          type='text'
+          className='text-red-500 mt-2'
+          icon={<DeleteOutlined />}
+          onClick={handleRemove}
+          style={{ paddingRight: 0 }}
+        >
+          Remove
+        </Button>
       </div>
-
-      {/* Remove Item Button */}
-      <Button
-        type='text'
-        className='text-red-500'
-        icon={<DeleteOutlined />}
-        onClick={handleRemove}
-      >
-        Remove
-      </Button>
     </div>
   );
 };

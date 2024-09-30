@@ -151,6 +151,7 @@ export const applyDiscountCode = async (req, res) => {
 
     if (discountCode === '20 DOLLAR OFF') {
       cart.discountAmount = 20;
+      cart.discountCode = discountCode;
     } else {
       return res.status(400).json({ message: 'Invalid discount code' });
     }
