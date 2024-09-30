@@ -1,7 +1,11 @@
 import { AppDispatch, RootState } from '../../app/store';
 import { Button, Divider, Drawer, Input, Spin } from 'antd';
 import React, { useEffect } from 'react';
-import { applyDiscountCode, fetchCart } from '../../features/cart/cartSlice';
+import {
+  applyDiscountCode,
+  applyDiscountCodeLocal,
+  fetchCart,
+} from '../../features/cart/cartSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 import CartItem from './CartItem';
@@ -13,6 +17,7 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { isAuthenticated } = useSelector((state: RootState) => state.user);
 
   // Accessing the cart state from the Redux store
   const { items, subTotal, tax, discountAmount, total, loading, error } =
@@ -28,7 +33,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
   // Handle applying a discount code
   const handleApplyDiscount = (discountCode: string) => {
     if (discountCode) {
-      dispatch(applyDiscountCode(discountCode));
+      if (isAuthenticated) {
+        dispatch(applyDiscountCode(discountCode));
+      } else {
+        dispatch(applyDiscountCodeLocal(discountCode));
+      }
     }
   };
 
