@@ -1,4 +1,48 @@
 import Product from '../models/productModel.js';
+import multer from 'multer';
+import path from 'path';
+
+// Set storage engine for multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'data/uploads/'); // Folder to store uploaded files
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`); // File naming
+  },
+});
+
+// File type validation
+const checkFileType = (file, cb) => {
+  const filetypes = /jpeg|jpg|png/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+
+  if (extname && mimetype) {
+    return cb(null, true);
+  } else {
+    cb('Images only!'); // Reject file if it's not an image
+  }
+};
+
+// Initialize multer with storage settings and file filter
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    checkFileType(file, cb);
+  },
+});
+
+// @desc Upload product image
+// @route POST /api/products/upload
+// @access Private (admin only)
+export const uploadProductImage = (req, res) => {
+  if (req.file) {
+    res.status(200).json({ imageUrl: `/${req.file.path}` }); // Return the image path
+  } else {
+    res.status(400).json({ message: 'No file uploaded' });
+  }
+};
 
 // @desc   Get all products
 // @route  GET /api/products
@@ -36,10 +80,8 @@ export const getProductById = async (req, res) => {
 // @route  POST /api/products
 // @access Private (admin only)
 export const createProduct = async (req, res) => {
-  console.log('Creating product', req.body);
   try {
     const { name, description, category, price, stock, image } = req.body;
-
     const owner = req.user ? req.user._id : null;
 
     const newProduct = new Product({
@@ -63,43 +105,26 @@ export const createProduct = async (req, res) => {
 // @route  PUT /api/products/:id
 // @access Private (admin only)
 export const updateProduct = async (req, res) => {
-
   try {
     const { name, description, category, price, stock, image } = req.body;
-    // Check if all necessary fields are provided in req.body
-    if (
-      !name ||
-      !description ||
-      !category ||
-      price === undefined ||
-      stock === undefined
-    ) {
-      console.log('Missing fields in request body');
+    
+    if (!name || !description || !category || price === undefined || stock === undefined) {
       return res.status(400).json({
-        message:
-          'All fields must be provided: name, description, category, price, stock, image',
+        message: 'All fields must be provided: name, description, category, price, stock, image',
       });
     }
 
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      console.log('Product not found for the given ID:', req.params.id);
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Authorization check - assuming req.user is available and populated
-    if (
-      product.owner.toString() !== req.user?._id.toString() &&
-      !req.user?.isAdmin
-    ) {
-      console.log('User is not authorized to update this product');
-      return res
-        .status(403)
-        .json({ message: 'Not authorized to update this product' });
+    // Authorization check
+    if (product.owner.toString() !== req.user?._id.toString() && !req.user?.isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to update this product' });
     }
 
-    // Assigning new values or keeping old ones
     product.name = name || product.name;
     product.description = description || product.description;
     product.category = category || product.category;
@@ -107,16 +132,10 @@ export const updateProduct = async (req, res) => {
     product.stock = stock || product.stock;
     product.image = image;
 
-
-    // Save the updated product
     const updatedProduct = await product.save();
-
     res.json(updatedProduct);
   } catch (error) {
-    console.error('Error during product update:', error);
-    res
-      .status(500)
-      .json({ message: 'Error updating product', error: error.message });
+    res.status(500).json({ message: 'Error updating product', error: error.message });
   }
 };
 

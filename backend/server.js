@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import express from 'express'
 import productRoutes from './routes/productRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import path from 'path'
 
 dotenv.config()
 
@@ -29,6 +30,9 @@ const corsOptionsDelegate = (req, callback) => {
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
 app.use(cors(corsOptionsDelegate)); 
+
+const __dirname = path.resolve();
+app.use('/data/uploads', express.static(path.join(__dirname, '/data/uploads')));
 
 app.use('/api/products', productRoutes)
 app.use('/api/users', userRoutes)
