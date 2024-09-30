@@ -77,7 +77,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
   return (
     <div className='flex justify-between items-center py-4 border-b'>
       {/* Image */}
-      <div className='flex-shrink-0'>
+      <div className='flex-shrink-0 hidden md:block'>
         <img
           src={item.image}
           alt={item.name}
@@ -88,7 +88,9 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       {/* Item Details */}
       <div className='flex-1 px-4'>
         <div className='flex flex-col'>
-          <p className='font-semibold truncate mb-2 text-lg'>{item.name}</p>
+          <p className='font-semibold truncate mb-2 text-lg max-w-[170px] custom-1:max-w-[200px] custom-2:max-w-[230px] custom-3:max-w-[260px] custom-4:max-w-[300px] custom-5:max-w-[350px] custom-6:max-w-[380px] custom-7:max-w-[300px]'>
+            {item.name}
+          </p>
           <div className='flex items-center space-x-2 mt-2'>
             <Button
               icon={<MinusOutlined />}
