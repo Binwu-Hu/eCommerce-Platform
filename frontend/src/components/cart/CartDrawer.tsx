@@ -1,10 +1,7 @@
 import { AppDispatch, RootState } from '../../app/store';
 import { Button, Divider, Drawer, Input, Spin } from 'antd';
 import React, { useEffect } from 'react';
-import {
-  applyDiscountCode,
-  fetchCart,
-} from '../../features/cart/cartSlice';
+import { applyDiscountCode, fetchCart } from '../../features/cart/cartSlice';
 import { useDispatch, useSelector } from 'react-redux';
 
 import CartItem from './CartItem';
@@ -35,9 +32,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ visible, onClose }) => {
     }
   };
 
+  const totalQuantity = useSelector((state: RootState) =>
+    state.cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  );
+
   return (
     <Drawer
-      title={`Cart (${items.length})`}
+      title={`Cart (${totalQuantity})`}
       placement='right'
       onClose={onClose}
       visible={visible}
