@@ -1,4 +1,4 @@
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
@@ -37,13 +37,13 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
   });
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const isFormIncomplete =
       !formData.name ||
       !formData.description ||
-      !formData.category ||
-      !formData.image;
+      !formData.category;
     setIsButtonDisabled(isFormIncomplete);
   }, [formData]);
 
@@ -59,6 +59,28 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const validateImageUrl = (url: string): boolean => {
+    const pattern = /\.(jpeg|jpg|gif|png)$/;
+    return pattern.test(url);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      image: value,
+    }));
+
+    if (value === '') {
+      setImagePreview(null);
+    } else if (validateImageUrl(value)) {
+      setImagePreview(value);
+    } else {
+      message.error('Please enter a valid image URL');
+      setImagePreview(null);
+    }
   };
 
   const handleSubmit = async () => {
@@ -135,15 +157,25 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
           </Form.Item>
         </div>
 
-        <Form.Item label='Image URL' required>
+        <Form.Item label='Image URL'>
           <Input
             name='image'
             value={formData?.image}
-            onChange={handleInputChange}
+            onChange={handleImageChange}
             placeholder='http://'
             className='rounded-md'
           />
         </Form.Item>
+        
+        {imagePreview && (
+          <div className='mb-6'>
+            <img
+              src={imagePreview}
+              alt='Image Preview'
+              className='w-32 h-32 object-cover rounded-lg'
+            />
+          </div>
+        )}
 
         <div className='text-center mt-6'>
           <Button
