@@ -44,7 +44,10 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
     const isFormIncomplete =
       !formData.name ||
       !formData.description ||
-      !formData.category;
+      !formData.category ||
+      formData.price === undefined ||
+      formData.stock === undefined;
+
     setIsButtonDisabled(isFormIncomplete);
   }, [formData]);
 
@@ -95,6 +98,17 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
   };
 
   const handleSubmit = async () => {
+    const price = parseFloat(formData.price?.toString() || '0');
+    const stock = parseInt(formData.stock?.toString() || '0', 10);
+
+    if (price < 0 || price !== +price.toFixed(2)) {
+      return message.error('Price must be a non-negative number with up to 2 decimal places');
+    }
+
+    if (stock < 0 || !Number.isInteger(stock)) {
+      return message.error('Stock must be a non-negative integer');
+    }
+
     try {
       if (product && product._id) {
         await dispatch(updateProduct({ id: product._id, data: formData }));
