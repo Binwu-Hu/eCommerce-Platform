@@ -1,8 +1,10 @@
-import { Button, Form, Input, message } from 'antd';
+import { Button, Form, Input, message, Upload } from 'antd';
 import React, { useState, useEffect } from 'react';
+import { UploadOutlined } from '@ant-design/icons';
 import { AppDispatch } from '../../app/store';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
   createProduct,
   updateProduct,
@@ -38,7 +40,8 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
 
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageError, setImageError] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);  // New state for image file
+  const [imageMethod, setImageMethod] = useState<'upload' | 'url'>('url'); // To track image upload method
 
   useEffect(() => {
     const isFormIncomplete =
@@ -54,7 +57,7 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
   useEffect(() => {
     if (product) {
       setFormData(product);
-      if (product.image && validateImageUrl(product.image)) {
+      if (product.image) {
         setImagePreview(product.image);
       }
     }
@@ -68,15 +71,40 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
     }));
   };
 
-  const validateImageUrl = (url: string): boolean => {
-    const pattern = /\.(jpeg|jpg|gif|png)$/;
-    return pattern.test(url);
+  const handleImageUpload = async (file: File) => {
+    const imageData = new FormData();
+    imageData.append('image', file); // Append the image file to FormData
+  
+    try {
+      const token = localStorage.getItem('token');
+  
+      const response = await axios.post('/api/products/upload', imageData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`, // Add the token here
+        },
+      });
+      const imageUrl = `http://localhost:3000${response.data.imageUrl}`;
+      setImagePreview(imageUrl); // Set preview image
+  
+      console.log('image url', imageUrl);
+      setFormData((prevData) => ({ ...prevData, image: imageUrl })); // Update formData with the image URL
+    } catch (error) {
+      message.error('Failed to upload image');
+    }
   };
+  
+  // Use useEffect to log the updated imagePreview
+  useEffect(() => {
+    if (imagePreview) {
+      console.log('Updated image preview', imagePreview);
+    }
+  }, [imagePreview]); // This effect will run every time `imagePreview` is updated
+  
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle image URL change
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setImageError(false);
-
     setFormData((prevData) => ({
       ...prevData,
       image: value,
@@ -92,9 +120,10 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
     }
   };
 
-  const handleImageError = () => {
-    setImageError(true);
-    setImagePreview(null);
+  // Validate if URL is an image
+  const validateImageUrl = (url: string): boolean => {
+    const pattern = /\.(jpeg|jpg|gif|png)$/;
+    return pattern.test(url);
   };
 
   const handleSubmit = async () => {
@@ -182,22 +211,52 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
           </Form.Item>
         </div>
 
-        <Form.Item label='Image URL'>
-          <Input
-            name='image'
-            value={formData?.image}
-            onChange={handleImageChange}
-            placeholder='http://'
-            className='rounded-md'
-          />
+        {/* Image Upload Method */}
+        <Form.Item label="Choose Image Method">
+          <Button
+            type={imageMethod === 'upload' ? 'primary' : 'default'}
+            onClick={() => setImageMethod('upload')}
+          >
+            Upload Image
+          </Button>
+          <Button
+            type={imageMethod === 'url' ? 'primary' : 'default'}
+            onClick={() => setImageMethod('url')}
+            style={{ marginLeft: '10px' }}
+          >
+            Use Image URL
+          </Button>
         </Form.Item>
-        
+
+        {imageMethod === 'upload' ? (
+          <Form.Item label='Image Upload'>
+            <Upload
+              beforeUpload={(file) => {
+                setImageFile(file); // Store the selected file in state
+                handleImageUpload(file); // Upload the image immediately
+                return false; // Prevent automatic upload by Ant Design
+              }}
+              showUploadList={false} // Hide the default file list
+            >
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item>
+        ) : (
+          <Form.Item label='Image URL'>
+            <Input
+              name='image'
+              value={formData?.image}
+              onChange={handleImageUrlChange}
+              placeholder='http://'
+              className='rounded-md'
+            />
+          </Form.Item>
+        )}
         <div className="border-2 border-dashed border-gray-300 p-6 my-6 flex justify-center items-center h-40">
-          {imagePreview && !imageError ? (
+          {imagePreview ? (
             <img
               src={imagePreview}
               alt='Image Preview'
-              onError={handleImageError}
               className="max-w-full max-h-full object-contain"
             />
           ) : (
