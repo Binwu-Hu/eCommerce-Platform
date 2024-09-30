@@ -1,11 +1,14 @@
 import { AppDispatch, RootState } from '../../app/store';
 import {
   addItemToCart,
+  addItemToCartForGuest,
   removeItemFromCart,
+  removeItemFromCartForGuest,
   updateCartItemQuantity,
   updateCartItemQuantityLocal,
 } from '../../features/cart/cartSlice';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { Button } from 'antd';
 import React from 'react';
 
@@ -32,7 +35,11 @@ const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
 
   const handleAddToCart = () => {
     if (quantity === 0) {
-      dispatch(addItemToCart({ productId, quantity: 1 }));
+      if (isAuthenticated) {
+        dispatch(addItemToCart({ productId, quantity: 1 }));
+      } else {
+        dispatch(addItemToCartForGuest({ productId, quantity: 1 }));
+      }
     }
   };
 
@@ -58,7 +65,11 @@ const AddtoCartButton: React.FC<AddtoCartButtonProps> = ({
 
   const handleDecrement = () => {
     if (quantity === 1) {
-      dispatch(removeItemFromCart(productId));
+      if (isAuthenticated) {
+        dispatch(removeItemFromCart(productId));
+      } else {
+        dispatch(removeItemFromCartForGuest(productId));
+      }
     } else if (quantity > 1) {
       if (isAuthenticated) {
         // For logged-in users, update the cart on the server

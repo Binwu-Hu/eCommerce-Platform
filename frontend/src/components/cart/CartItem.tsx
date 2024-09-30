@@ -2,6 +2,7 @@ import { AppDispatch, RootState } from '../../app/store';
 import { DeleteOutlined, MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   removeItemFromCart,
+  removeItemFromCartLocal,
   updateCartItemQuantity,
   updateCartItemQuantityLocal,
 } from '../../features/cart/cartSlice';
@@ -66,7 +67,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
   // Handle removing an item from the cart
   const handleRemove = () => {
-    dispatch(removeItemFromCart(item.productId));
+    if (isAuthenticated) {
+      dispatch(removeItemFromCart(item.productId));
+    } else {
+      dispatch(removeItemFromCartLocal(item.productId));
+    }
   };
 
   return (

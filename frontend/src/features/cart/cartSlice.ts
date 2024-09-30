@@ -47,11 +47,10 @@ const calculateTotals = (state: CartState) => {
   state.total = state.subTotal + state.tax - state.discountAmount;
 };
 
-
 // Fetch cart details (from server if authenticated, from localStorage if not)
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
-  async (_, { getState, dispatch, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     const { user } = getState() as { user: { isAuthenticated: boolean } };
 
     if (user.isAuthenticated) {
@@ -91,11 +90,10 @@ export const addItemToCart = createAsyncThunk(
   'cart/addItemToCart',
   async (
     { productId, quantity }: { productId: string; quantity: number },
-    { getState, dispatch, rejectWithValue }
+    { getState, rejectWithValue }
   ) => {
-    const { user, products } = getState() as {
+    const { user } = getState() as {
       user: { isAuthenticated: boolean };
-      products: { products: Product[] };
     };
 
     if (user.isAuthenticated) {
@@ -111,6 +109,7 @@ export const addItemToCart = createAsyncThunk(
             },
           }
         );
+        console.log('cart data:: ', response.data);
         return response.data;
       } catch (err) {
         const error = err as AxiosError;
@@ -119,37 +118,51 @@ export const addItemToCart = createAsyncThunk(
         );
       }
     } else {
-      // Guest users (localStorage)
-      let product = products.products.find((p) => p._id === productId);
-      if (!product) {
-        // If product not in state, fetch the product details from the API
-        try {
-          const response = await axios.get(`/api/products/${productId}`);
-          product = response.data;
-        } catch (err) {
-          const error = err as AxiosError;
-          return rejectWithValue(
-            error.response?.data || 'Error fetching product details'
-          );
-        }
-      }
-
-      // Ensure product details are available before adding to the cart
-      if (!product) {
-        return rejectWithValue('Product not found');
-      }
-
-      // Dispatch local cart action for guest users
-      dispatch(
-        addItemToCartLocal({
-          productId,
-          quantity,
-          name: product.name,
-          price: product.price,
-          image: product.image,
-        })
-      );
+      return rejectWithValue('User is not authenticated');
     }
+  }
+);
+
+export const addItemToCartForGuest = createAsyncThunk(
+  'cart/addItemToCartForGuest',
+  async (
+    { productId, quantity }: { productId: string; quantity: number },
+    { getState, dispatch, rejectWithValue }
+  ) => {
+    const { products } = getState() as {
+      products: { products: Product[] };
+    };
+
+    let product = products.products.find((p) => p._id === productId);
+
+    if (!product) {
+      try {
+        // Fetch product details if it's not available in the products slice
+        const response = await axios.get(`/api/products/${productId}`);
+        product = response.data;
+      } catch (err) {
+        const error = err as AxiosError;
+        return rejectWithValue(
+          error.response?.data || 'Error fetching product details'
+        );
+      }
+    }
+
+    // Ensure product details are available
+    if (!product) {
+      return rejectWithValue('Product not found');
+    }
+
+    // Dispatch the local cart action
+    dispatch(
+      addItemToCartLocal({
+        productId: product._id,
+        quantity,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+      })
+    );
   }
 );
 
@@ -178,8 +191,15 @@ export const removeItemFromCart = createAsyncThunk(
       }
     } else {
       // Guest users (localStorage)
-      dispatch(removeItemFromCartLocal(productId));
+      return rejectWithValue('User is not authenticated');
     }
+  }
+);
+
+export const removeItemFromCartForGuest = createAsyncThunk(
+  'cart/removeItemFromCartForGuest',
+  async (productId: string, { dispatch }) => {
+    dispatch(removeItemFromCartLocal(productId));
   }
 );
 
@@ -291,6 +311,10 @@ const cartSlice = createSlice({
     addItemToCartLocal: (state, action) => {
       const { productId, quantity, name, price, image } = action.payload;
 
+      if (!state.items) {
+        state.items = [];
+      }
+
       const existingItem = state.items.find(
         (item) => item.productId === productId
       );
@@ -312,9 +336,8 @@ const cartSlice = createSlice({
     },
 
     removeItemFromCartLocal: (state, action) => {
-      state.items = state.items.filter(
-        (item) => item.productId !== action.payload
-      );
+      const productId = action.payload;
+      state.items = state.items.filter((item) => item.productId !== productId);
       saveCartToLocalStorage(state.items);
       calculateTotals(state);
     },
@@ -331,8 +354,8 @@ const cartSlice = createSlice({
 
     applyDiscountCodeLocal: (state, action) => {
       state.discountCode = action.payload;
-      state.discountAmount = 20; // Just a dummy value, change based on your logic
-      calculateTotals(state); // Update totals
+      state.discountAmount = 20;
+      calculateTotals(state);
     },
 
     resetCart: (state) => {
