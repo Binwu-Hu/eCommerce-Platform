@@ -18,8 +18,8 @@ interface Product {
   name: string;
   description: string;
   category: string;
-  price: number;
-  stock: number;
+  price: number | string; // price can be a number or string due to input handling
+  stock: number | string; // stock can be a number or string due to input handling
   image: string;
 }
 
@@ -48,6 +48,8 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
       !formData.name ||
       !formData.description ||
       !formData.category ||
+      formData.price === '' ||  // Check if price is empty
+      formData.stock === '' ||  // Check if stock is empty
       formData.price === undefined ||
       formData.stock === undefined;
 
@@ -255,7 +257,7 @@ const CreateProductForm: React.FC<CreateProductFormProps> = () => {
                 handleImageUpload(file); // Upload the image immediately
                 return false; // Prevent automatic upload by Ant Design
               }}
-              showUploadList={false} // Hide the default file list
+              showUploadList={false}
             >
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
             </Upload>
